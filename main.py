@@ -9,7 +9,9 @@ import pprint
 import re
 import math
 from datetime import datetime
-
+import pathlib
+import timeit
+import time
 
 def get_krx_list():
     krx_df = pd.read_html('http://kind.krx.co.kr/corpgeneral/corpList.do?method=download&searchType=13', header=0)[0]
@@ -76,7 +78,6 @@ def parse_fnguide(html_snapshot, html_fs):
     temp_df = pd.DataFrame({'배당성향(%)': fh.loc['DPS'] / fh.loc['EPS'] * 100}).T
     fh = pd.concat([fh, temp_df])
     #print(fh)
-
     
     #Parse html_fs
     table = html_fs.find_all('table')
@@ -95,14 +96,18 @@ def parse_fnguide(html_snapshot, html_fs):
     fs = pd.concat([ci, cf])
     fs = fs.loc[['영업이익', '영업활동으로인한현금흐름'], :]
     fs.rename(index = {'영업활동으로인한현금흐름': '영업CF'}, inplace = True)
-    temp_df = pd.DataFrame({'현금흐름검토': fs.loc['영업CF'] - fs.loc['영업이익']}).T
+    temp_df = pd.DataFrame({'CF이익차액': fs.loc['영업CF'] - fs.loc['영업이익']}).T
+    fs = pd.concat([fs, temp_df])
+    #영업이익(+), 영업현금흐름(-) 체크 : 해당하면 1
+    temp1 = fs.loc['영업이익'] > 0
+    temp2 = fs.loc['영업CF'] < 0
+    temp_df = pd.DataFrame(temp1 & temp2, columns=['CF이익검토']).T
     fs = pd.concat([fs, temp_df])
     #print(fs)
-
     return current_price, revised_shares, fh, fs
 
-def calculate_price(B0, ROE, Ke, shares, discount_factor):
-    values = B0 + B0*(ROE-Ke)*0.01*(discount_factor)/(1+Ke*0.01-discount_factor)
+def calculate_price(B0, roe, Ke, shares, discount_factor):
+    values = B0 + B0*(roe-Ke)*0.01*(discount_factor)/(1+Ke*0.01-discount_factor)
     price = values / shares
     return price
 
@@ -122,7 +127,7 @@ def calculate_weighted_average(minus2, minus1, minus0):
 def calculate_roe(fh, year):
     roe = fh.loc['ROE',:]
     # +2year(E)
-    if not math.isnan(roe[str(year+2)+'/12(E)']):
+    if not math.isnan(roe[str(year+2)+'/12(E)']):        
         selected_roe = roe[str(year+2)+'/12(E)']
         roe_reference = str(year+2)+'/12(E)'
     # +1year (E)    
@@ -131,60 +136,102 @@ def calculate_roe(fh, year):
         roe_reference = str(year+1)+'/12(E)'
     # 0year (E) - weighted average
     elif not math.isnan(roe[str(year)+'/12(E)']):
-        minus2 = roe[str(year-2)+'/12(E)']
-        minus1 = roe[str(year-1)+'/12']
-        minus0 = roe[str(year)+'/12']
+        minus2 = float(roe[str(year-2)+'/12'])
+        minus1 = float(roe[str(year-1)+'/12'])
+        minus0 = float(roe[str(year)+'/12(E)'])
         selected_roe = calculate_weighted_average(minus2, minus1, minus0)
         roe_reference = str(year)+'/12(E)'
     # -1year - weighted average
     else:
-        minus3 = roe[str(year-3)+'/12']
-        minus2 = roe[str(year-2)+'/12']
-        minus1 = roe[str(year-1)+'/12']
-        selected_roe = calculate_weighted_average(minus3, minus2, minus1)
+        minus2 = float(roe[str(year-3)+'/12'])
+        minus1 = float(roe[str(year-2)+'/12'])
+        minus0 = float(roe[str(year-1)+'/12'])
+        selected_roe = calculate_weighted_average(minus2, minus1, minus0)
         roe_reference = str(year-1)+'/12'
     return selected_roe, roe_reference
 
 def calculate_srim(shares, Ke, fh, current_year):
     last_year = current_year - 1;    
-    #extract&determine ROE
-    ROE, ROE_reference = calculate_roe(fh, current_year)
+    #extract&determine roe
+    roe, roe_reference = calculate_roe(fh, current_year)
     #extract&determine B0 : 지배주주지분
     B0 = fh.loc['지배주주지분',str(last_year)+'/12'] * 10**8
     discount_factor = 1
-    sell_price = calculate_price(B0, ROE, Ke, shares, discount_factor)
+    sell_price = calculate_price(B0, roe, Ke, shares, discount_factor)
     discount_factor = 0.9
-    moderate_price = calculate_price(B0, ROE, Ke, shares, discount_factor)    
+    moderate_price = calculate_price(B0, roe, Ke, shares, discount_factor)    
     discount_factor = 0.8
-    buy_price = calculate_price(B0, ROE, Ke, shares, discount_factor)
-    return buy_price, moderate_price, sell_price, ROE, ROE_reference
+    buy_price = calculate_price(B0, roe, Ke, shares, discount_factor)
+    return buy_price, moderate_price, sell_price, roe, roe_reference
 
 
+
+# start main
 current_year = datetime.now().year
-
-krx_list = get_krx_list()
-#print(krx_list)
 
 required_ror_percent = get_required_rate_of_return()
 #print(required_ror_percent)
 
-code = '120030'
-html_snapshot, html_fs = get_html_fnguide(code)
+krx_list = get_krx_list()
+#print(krx_list)
 
-current_price, shares, fh, fs = parse_fnguide(html_snapshot, html_fs)
-#print('current_price\n', current_price, '\n\n\n')
-#print('shares\n', shares, '\n\n\n')
-#print('fh\n', fh, '\n\n\n')
-#print('fs\n', fs, '\n\n\n')
-
-buy_price, moderate_price, sell_price, ROE, ROE_reference = calculate_srim(shares, required_ror_percent, fh, current_year)
+result_df = pd.DataFrame()
 
 
-print('')
-print('current_price: \t', current_price)
-print('\nbuy_price: \t', buy_price)
-print('moderate_price: \t', moderate_price)
-print('sell_price: \t', sell_price)
-print('ROE: \t', ROE)
-print('ROE_reference: \t', ROE_reference)
-print('')
+#for iter in range(0,len(krx_list)) :
+for iter in range(29,len(krx_list)) :
+    
+    start = timeit.default_timer()
+    #time.sleep(0.5)
+    print('Iter: ', iter, '\t Name: ', krx_list.iloc[iter]['name'])  
+
+    code = krx_list.iloc[iter]['code']
+    html_snapshot, html_fs = get_html_fnguide(code)
+
+    current_price, shares, fh, fs = parse_fnguide(html_snapshot, html_fs)
+    #print('current_price\n', current_price, '\n\n\n')
+    #print('shares\n', shares, '\n\n\n')
+    #print('fh\n', fh, '\n\n\n')
+    #print('fs\n', fs, '\n\n\n')
+
+    buy_price, moderate_price, sell_price, roe, roe_reference = calculate_srim(shares, required_ror_percent, fh, current_year)
+    #print('')
+    #print('current_price: \t', current_price)
+    #print('buy_price: \t', buy_price)
+    #print('moderate_price: \t', moderate_price)
+    #print('sell_price: \t', sell_price)
+    #print('roe: \t', roe)
+    #print('roe_reference: \t', roe_reference)
+    #print('')
+
+    code = krx_list.iloc[iter]['code']
+    name = krx_list.iloc[iter]['name']
+    current_price = round(current_price)
+    buy_price = round(buy_price)
+    undervalued_rate_buy = round((buy_price - current_price)/current_price * 100, 2)
+    moderate_price = round(moderate_price)
+    undervalued_rate_moderate = round((moderate_price - current_price)/current_price * 100, 2)
+    sell_price = round(sell_price)
+    undervalued_rate_sell = round((sell_price - current_price)/current_price * 100, 2)
+    roe = roe
+    roe_reference = roe_reference
+    CF_alerts = int(pd.DataFrame(fs.loc['CF이익검토']).sum())
+    devidend_rate = fh.loc['배당수익률'].loc[str(current_year-1)+'/12']
+    industry = krx_list.iloc[iter]['industry']
+    product = krx_list.iloc[iter]['product']
+
+    temp_result_df = pd.DataFrame({'code':[code], 'name':[name], '현재가':[current_price], '매수가격':[buy_price], '매수가격대비(%)':[undervalued_rate_buy], '적정가격':[moderate_price], '적정가격대비(%)':[undervalued_rate_moderate], '매도가격':[sell_price], '매도가격대비(%)':[undervalued_rate_sell], 'ROE(%)':[roe], 'ROE기준':[roe_reference], 'CF위험(회)':[CF_alerts], '배당수익률(%)':[devidend_rate], '업종':[industry], '주요제품':[product]})
+    result_df = pd.concat([result_df, temp_result_df])
+    #print(result_df)
+
+    stop = timeit.default_timer()
+    print('Iter: ', iter, '\t Name: ', name, '\tTime: ', stop - start)
+
+#print(result_df)
+
+path = str(pathlib.Path().absolute()) + '\\'
+file_name = str(datetime.now().date()) + '.csv'
+result_df.to_csv(path+file_name, mode='w', index=False, na_rep='NaN', encoding='utf-8-sig')
+
+#%%
+print(krx_list.iloc[11])

@@ -36,12 +36,11 @@ def get_html_fnguide(code):
     try:
         html_snapshot = BeautifulSoup(requests.get(url[0]).content, 'html.parser').find('body')
         html_fs = BeautifulSoup(requests.get(url[1]).content, 'html.parser').find('body')
+        return True, '', html_snapshot, html_fs
 
     except AttributeError as e :
-        print(e)
-        return None
-
-    return html_snapshot, html_fs
+        print('Error in get_html_fnguide : ', e)
+        return False, str(e), None, None    
 
 def parse_fnguide(html_snapshot, html_fs):
     try:
@@ -105,10 +104,10 @@ def parse_fnguide(html_snapshot, html_fs):
         temp_df = pd.DataFrame(temp1 & temp2, columns=['CF이익검토']).T
         fs = pd.concat([fs, temp_df])
         #print(fs)
-        return True, current_price, revised_shares, fh, fs
+        return True, '', current_price, revised_shares, fh, fs
     except Exception as e:
         print('Exception in parse_fnguide :', e)
-        return False, None, None, None, None
+        return False, str(e), None, None, None, None
 
 def calculate_price(B0, roe, Ke, shares, discount_factor):
     values = B0 + B0*(roe-Ke)*0.01*(discount_factor)/(1+Ke*0.01-discount_factor)
@@ -127,12 +126,6 @@ def calculate_weighted_average(minus2, minus1, minus0):
         else :
             weighted_average = minus0 # decrease pattern
     return weighted_average
-
-def check_float(extracted_roe):
-    try:
-        return extracted_roe.astype(float)
-    except Exception as e:
-        return None
 
 def calculate_roe(fh):
     roe = fh.loc['ROE',:]
@@ -157,17 +150,17 @@ def calculate_roe(fh):
             extracted_roe = extracted_roe.astype(float)
             selected_roe = calculate_weighted_average(extracted_roe[0], extracted_roe[1], extracted_roe[2])
             roe_reference = roe.index[-4]
-        return True, selected_roe, roe_reference
+        return True, '', selected_roe, roe_reference
     except Exception as e:
         print('Exception in calculate_roe :', e)
-        return False, None, None
+        return False, str(e), None, None
 
 def calculate_srim(shares, Ke, fh):
     try:
         #extract&determine roe
-        status, roe, roe_reference = calculate_roe(fh)
+        status, msg, roe, roe_reference = calculate_roe(fh)
         if status == False:
-            return False, None, None, None, None, None
+            return False, msg, None, None, None, None, None
         #extract&determine B0 : 지배주주지분
         B0 = fh.loc['지배주주지분'][-4] * 10**8 # 지난 결산 년도 지배주주지분
         discount_factor = 1
@@ -176,10 +169,10 @@ def calculate_srim(shares, Ke, fh):
         moderate_price = calculate_price(B0, roe, Ke, shares, discount_factor)    
         discount_factor = 0.8
         buy_price = calculate_price(B0, roe, Ke, shares, discount_factor)
-        return True, buy_price, moderate_price, sell_price, roe, roe_reference
+        return True, '', buy_price, moderate_price, sell_price, roe, roe_reference
     except Exception as e:
         print('Exception in calculate_srim :', e)
-        return False, None, None, None, None, None
+        return False, str(e), None, None, None, None, None
 
 def check_skip_this_company(name):
     if name.find('스팩') != -1:
@@ -201,6 +194,7 @@ krx_list = get_krx_list()
 #print(krx_list)
 
 result_df = pd.DataFrame()
+skip_df = pd.DataFrame()
 
 count_total = 0
 count_record = 0
@@ -208,7 +202,7 @@ count_skip = 0
 
 #for iter in range(107,len(krx_list)) :
 #for iter in range(943,944) : #삼성전자 943
-for iter in range(0,len(krx_list)) :
+for iter in range(11,len(krx_list)) :
     temp_result_df = pd.DataFrame()
     count_total += 1
     
@@ -219,34 +213,41 @@ for iter in range(0,len(krx_list)) :
     if check_skip_this_company(krx_list.iloc[iter]['name']):
         count_skip += 1
         print('Skip analyzing ', krx_list.iloc[iter]['name'])
+        temp_skip_df = pd.DataFrame({'code':[krx_list.iloc[iter]['code']], 'name':[krx_list.iloc[iter]['name']], 'reason':['분석 제외 대상']})
+        skip_df = pd.concat([skip_df, temp_skip_df])
         continue
 
     code = krx_list.iloc[iter]['code']
-    html_snapshot, html_fs = get_html_fnguide(code)
-
-    status, current_price, shares, fh, fs = parse_fnguide(html_snapshot, html_fs)
+    status, msg, html_snapshot, html_fs = get_html_fnguide(code)
     if status == False:
         count_skip += 1
+        temp_skip_df = pd.DataFrame({'code':[krx_list.iloc[iter]['code']], 'name':[krx_list.iloc[iter]['name']], 'reason':['Error on get_html_fnguide : '+msg]})
+        skip_df = pd.concat([skip_df, temp_skip_df])
         continue
-    #print('current_price\n', current_price, '\n\n\n')
-    #print('shares\n', shares, '\n\n\n')
-    #print('fh\n', fh, '\n\n\n')
-    #print('fs\n', fs, '\n\n\n')
 
-    status, buy_price, moderate_price, sell_price, roe, roe_reference = calculate_srim(shares, required_ror_percent, fh)
+    status, msg, current_price, shares, fh, fs = parse_fnguide(html_snapshot, html_fs)
     if status == False:
         count_skip += 1
+        temp_skip_df = pd.DataFrame({'code':[krx_list.iloc[iter]['code']], 'name':[krx_list.iloc[iter]['name']], 'reason':['Error on parse_fnguide : '+msg]})
+        skip_df = pd.concat([skip_df, temp_skip_df])
+        continue
+
+    status, msg, buy_price, moderate_price, sell_price, roe, roe_reference = calculate_srim(shares, required_ror_percent, fh)
+    if status == False:
+        count_skip += 1
+        temp_skip_df = pd.DataFrame({'code':[krx_list.iloc[iter]['code']], 'name':[krx_list.iloc[iter]['name']], 'reason':['Error on calculate_srim : '+msg]})
+        skip_df = pd.concat([skip_df, temp_skip_df])
         continue
 
     # Organize results
     code = krx_list.iloc[iter]['code']
     name = krx_list.iloc[iter]['name']
     current_price = round(current_price)
-    buy_price = round(buy_price)
-    undervalued_rate_buy = round((buy_price - current_price)/current_price * 100, 2)
-    moderate_price = round(moderate_price)
-    undervalued_rate_moderate = round((moderate_price - current_price)/current_price * 100, 2)
+    buy_price = round(buy_price)    
+    moderate_price = round(moderate_price)    
     sell_price = round(sell_price)
+    undervalued_rate_buy = round((buy_price - current_price)/current_price * 100, 2)
+    undervalued_rate_moderate = round((moderate_price - current_price)/current_price * 100, 2)
     undervalued_rate_sell = round((sell_price - current_price)/current_price * 100, 2)
     roe = roe
     roe_reference = roe_reference
@@ -255,7 +256,21 @@ for iter in range(0,len(krx_list)) :
     industry = krx_list.iloc[iter]['industry']
     product = krx_list.iloc[iter]['product']
 
-    temp_result_df = pd.DataFrame({'code':[code], 'name':[name], '현재가':[current_price], '매수가격':[buy_price], '매수가격대비(%)':[undervalued_rate_buy], '적정가격':[moderate_price], '적정가격대비(%)':[undervalued_rate_moderate], '매도가격':[sell_price], '매도가격대비(%)':[undervalued_rate_sell], 'ROE(%)':[roe], 'ROE기준':[roe_reference], 'CF위험(회)':[CF_alerts], '배당수익률(%)':[devidend_rate], '업종':[industry], '주요제품':[product]})
+    temp_result_df = pd.DataFrame({'code':[code], 
+    'name':[name], 
+    '현재가':[current_price], 
+    '매수가격':[buy_price],      
+    '적정가격':[moderate_price],     
+    '매도가격':[sell_price], 
+    '매수가격대비(%)':[undervalued_rate_buy],
+    '적정가격대비(%)':[undervalued_rate_moderate], 
+    '매도가격대비(%)':[undervalued_rate_sell], 
+    'ROE(%)':[roe], 
+    'ROE기준':[roe_reference], 
+    'CF위험(회)':[CF_alerts], 
+    '배당수익률(%)':[devidend_rate], 
+    '업종':[industry], 
+    '주요제품':[product]})
     result_df = pd.concat([result_df, temp_result_df])
     #print(result_df)
 
@@ -266,24 +281,17 @@ for iter in range(0,len(krx_list)) :
 #print(result_df)
 
 path = str(pathlib.Path().absolute()) + '\\'
-file_name = str(datetime.now().date()) + '.csv'
-result_df.to_csv(path+file_name, mode='w', index=False, na_rep='NaN', encoding='utf-8-sig')
+file_name = str(datetime.now().date())
+extension = '.csv'
+result_df.to_csv(path+file_name+extension, mode='w', index=False, na_rep='NaN', encoding='utf-8-sig')
+skip_df.to_csv(path+file_name+'_skipped_'+extension, mode='w', index=False, na_rep='NaN', encoding='utf-8-sig')
 
 #%%
-print(temp_result_df)
-print(roe)
-print(current_price)
-print(buy_price)
-print(sell_price)
-print(moderate_price)
-print(iter)
+print(skip_df)
+print(result_df)
 
-print(fs)
-
-print(fh)
-
-print(fh.loc['ROE'])
-
-a = fh.loc['ROE']
-
-print(a[-4:])
+path = str(pathlib.Path().absolute()) + '\\'
+file_name = str(datetime.now().date())
+extension = '.csv'
+result_df.to_csv(path+file_name+extension, mode='w', index=False, na_rep='NaN', encoding='utf-8-sig')
+skip_df.to_csv(path+file_name+'_skipped_'+extension, mode='w', index=False, na_rep='NaN', encoding='utf-8-sig')

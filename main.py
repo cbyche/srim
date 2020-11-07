@@ -177,13 +177,23 @@ krx_list = get_krx_list()
 
 result_df = pd.DataFrame()
 
-
+count_total = 0
+count_record = 0
+count_skip = 0
 #for iter in range(0,len(krx_list)) :
-for iter in range(29,len(krx_list)) :
+for iter in range(91,len(krx_list)) :
+    count_total += 1
     
     start = timeit.default_timer()
     #time.sleep(0.5)
     print('Iter: ', iter, '\t Name: ', krx_list.iloc[iter]['name'])  
+
+    name = krx_list.iloc[iter]['name']
+    if name.find('스팩') != -1:
+        count_skip += 1
+        print('Skip ', name)
+        continue
+
 
     code = krx_list.iloc[iter]['code']
     html_snapshot, html_fs = get_html_fnguide(code)
@@ -224,6 +234,7 @@ for iter in range(29,len(krx_list)) :
     result_df = pd.concat([result_df, temp_result_df])
     #print(result_df)
 
+    count_record += 1
     stop = timeit.default_timer()
     print('Iter: ', iter, '\t Name: ', name, '\tTime: ', stop - start)
 

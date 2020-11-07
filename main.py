@@ -44,67 +44,71 @@ def get_html_fnguide(code):
     return html_snapshot, html_fs
 
 def parse_fnguide(html_snapshot, html_fs):
-    fnguide_df = pd.DataFrame()
+    try:
+        fnguide_df = pd.DataFrame()
 
-    #parse html_snapshot
-    table = html_snapshot.find_all('table')
-    table = pd.read_html(str(table))
-    #시세현황 cs : current status
-    #current_price: 현재가(종가)
-    #shares: 발행주식수(보통주+우선주)
-    cs = table[0]
-    current_price = float(cs.iloc[0,1].split('/')[0].replace(',',''))
-    shares = cs.iloc[6,1].replace(',','').split('/')
-    shares = list(map(float, shares))
-    shares = shares[0] + shares[1]
-    #주주구분현황 sh: stake holders
-    #own_shares: 자기주식
-    sh = table[4]
-    own_shares = sh.iloc[4,3]
-    if math.isnan(own_shares):
-        own_shares = float(0.0)
-    else:
-        own_shares = float(own_shares)
-    #주식수: 보통주+우선주-자기주식수
-    revised_shares = shares - own_shares    
-    #fh: Financial highlight (연결/연간)
-    fh = table[11]
-    fh.columns = fh.columns.droplevel()
-    fh.index = fh['IFRS(연결)'].values
-    fh.drop(['IFRS(연결)'], inplace=True, axis=1)
-    #print(fh)
-    fh = fh.loc[['지배주주지분', 'ROE', 'EPS(원)', 'DPS(원)', 'BPS(원)', '배당수익률'],:]
-    fh.rename(index = {'DPS(원)': 'DPS', 'BPS(원)': 'BPS', 'EPS(원)': 'EPS'}, inplace = True)
-    temp_df = pd.DataFrame({'배당성향(%)': fh.loc['DPS'] / fh.loc['EPS'] * 100}).T
-    fh = pd.concat([fh, temp_df])
-    #print(fh)
-    
-    #Parse html_fs
-    table = html_fs.find_all('table')
-    table = pd.read_html(str(table))
-    #포괄손익계산서 ci: statement of comprehensive income
-    ci = table[0]
-    ci.iloc[:,0] = ci.iloc[:,0].str.replace('계산에 참여한 계정 펼치기', '')
-    ci.index = ci['IFRS(연결)'].values
-    ci.drop(['IFRS(연결)', '전년동기', '전년동기(%)'], inplace=True, axis=1)
-    #현금흐름표 cf: statement of cash flow
-    cf = table[4]
-    cf.iloc[:,0] = cf.iloc[:,0].str.replace('계산에 참여한 계정 펼치기', '')
-    cf.index = cf['IFRS(연결)'].values
-    cf.drop(['IFRS(연결)'], inplace=True, axis=1)
-    #포괄손익계산서 + 현금흐름표
-    fs = pd.concat([ci, cf])
-    fs = fs.loc[['영업이익', '영업활동으로인한현금흐름'], :]
-    fs.rename(index = {'영업활동으로인한현금흐름': '영업CF'}, inplace = True)
-    temp_df = pd.DataFrame({'CF이익차액': fs.loc['영업CF'] - fs.loc['영업이익']}).T
-    fs = pd.concat([fs, temp_df])
-    #영업이익(+), 영업현금흐름(-) 체크 : 해당하면 1
-    temp1 = fs.loc['영업이익'] > 0
-    temp2 = fs.loc['영업CF'] < 0
-    temp_df = pd.DataFrame(temp1 & temp2, columns=['CF이익검토']).T
-    fs = pd.concat([fs, temp_df])
-    #print(fs)
-    return current_price, revised_shares, fh, fs
+        #parse html_snapshot
+        table = html_snapshot.find_all('table')
+        table = pd.read_html(str(table))
+        #시세현황 cs : current status
+        #current_price: 현재가(종가)
+        #shares: 발행주식수(보통주+우선주)
+        cs = table[0]
+        current_price = float(cs.iloc[0,1].split('/')[0].replace(',',''))
+        shares = cs.iloc[6,1].replace(',','').split('/')
+        shares = list(map(float, shares))
+        shares = shares[0] + shares[1]
+        #주주구분현황 sh: stake holders
+        #own_shares: 자기주식
+        sh = table[4]
+        own_shares = sh.iloc[4,3]
+        if math.isnan(own_shares):
+            own_shares = float(0.0)
+        else:
+            own_shares = float(own_shares)
+        #주식수: 보통주+우선주-자기주식수
+        revised_shares = shares - own_shares    
+        #fh: Financial highlight (연결/연간)
+        fh = table[11]
+        fh.columns = fh.columns.droplevel()
+        fh.index = fh['IFRS(연결)'].values
+        fh.drop(['IFRS(연결)'], inplace=True, axis=1)
+        #print(fh)
+        fh = fh.loc[['지배주주지분', 'ROE', 'EPS(원)', 'DPS(원)', 'BPS(원)', '배당수익률'],:]
+        fh.rename(index = {'DPS(원)': 'DPS', 'BPS(원)': 'BPS', 'EPS(원)': 'EPS'}, inplace = True)
+        temp_df = pd.DataFrame({'배당성향(%)': fh.loc['DPS'] / fh.loc['EPS'] * 100}).T
+        fh = pd.concat([fh, temp_df])
+        #print(fh)
+        
+        #Parse html_fs
+        table = html_fs.find_all('table')
+        table = pd.read_html(str(table))
+        #포괄손익계산서 ci: statement of comprehensive income
+        ci = table[0]
+        ci.iloc[:,0] = ci.iloc[:,0].str.replace('계산에 참여한 계정 펼치기', '')
+        ci.index = ci['IFRS(연결)'].values
+        ci.drop(['IFRS(연결)', '전년동기', '전년동기(%)'], inplace=True, axis=1)
+        #현금흐름표 cf: statement of cash flow
+        cf = table[4]
+        cf.iloc[:,0] = cf.iloc[:,0].str.replace('계산에 참여한 계정 펼치기', '')
+        cf.index = cf['IFRS(연결)'].values
+        cf.drop(['IFRS(연결)'], inplace=True, axis=1)
+        #포괄손익계산서 + 현금흐름표
+        fs = pd.concat([ci, cf])
+        fs = fs.loc[['영업이익', '영업활동으로인한현금흐름'], :]
+        fs.rename(index = {'영업활동으로인한현금흐름': '영업CF'}, inplace = True)
+        temp_df = pd.DataFrame({'CF이익차액': fs.loc['영업CF'] - fs.loc['영업이익']}).T
+        fs = pd.concat([fs, temp_df])
+        #영업이익(+), 영업현금흐름(-) 체크 : 해당하면 1
+        temp1 = fs.loc['영업이익'] > 0
+        temp2 = fs.loc['영업CF'] < 0
+        temp_df = pd.DataFrame(temp1 & temp2, columns=['CF이익검토']).T
+        fs = pd.concat([fs, temp_df])
+        #print(fs)
+        return True, current_price, revised_shares, fh, fs
+    except Exception as e:
+        print('Exception in parse_fnguide :', e)
+        return False, None, None, None, None
 
 def calculate_price(B0, roe, Ke, shares, discount_factor):
     values = B0 + B0*(roe-Ke)*0.01*(discount_factor)/(1+Ke*0.01-discount_factor)
@@ -124,47 +128,68 @@ def calculate_weighted_average(minus2, minus1, minus0):
             weighted_average = minus0 # decrease pattern
     return weighted_average
 
-def calculate_roe(fh, year):
+def check_float(extracted_roe):
+    try:
+        return extracted_roe.astype(float)
+    except Exception as e:
+        return None
+
+def calculate_roe(fh):
     roe = fh.loc['ROE',:]
-    # +2year(E)
-    if not math.isnan(roe[-1]):   
-        selected_roe = roe[-1]
-        roe_reference = roe.index[-1]
-    # +1year (E)    
-    elif not math.isnan(roe[-2]):
-        selected_roe = roe[-2]
-        roe_reference = roe.index[-2]
-    # 0year (E) - weighted average
-    elif not math.isnan(roe[-3]):
-        minus2 = float(roe[-5])
-        minus1 = float(roe[-4])
-        minus0 = float(roe[-3])
-        selected_roe = calculate_weighted_average(minus2, minus1, minus0)
-        roe_reference = roe.index[-3]
-    # -1year - weighted average
-    else:
-        minus2 = float(roe[-6])
-        minus1 = float(roe[-5])
-        minus0 = float(roe[-4])
-        selected_roe = calculate_weighted_average(minus2, minus1, minus0)
-        roe_reference = roe.index[-4]
-    return selected_roe, roe_reference
+    try:
+        # +2year(E)
+        if not math.isnan(roe[-1]):   
+            selected_roe = roe[-1]
+            roe_reference = roe.index[-1]
+        # +1year (E)    
+        elif not math.isnan(roe[-2]):
+            selected_roe = roe[-2]
+            roe_reference = roe.index[-2]
+        # 0year (E) - weighted average
+        elif not math.isnan(roe[-3]):
+            extracted_roe = roe[-5:-2]
+            extracted_roe = extracted_roe.astype(float)
+            selected_roe = calculate_weighted_average(extracted_roe[0], extracted_roe[1], extracted_roe[2])
+            roe_reference = roe.index[-3]
+        # -1year - weighted average
+        else:
+            extracted_roe = roe[-6:-3]
+            extracted_roe = extracted_roe.astype(float)
+            selected_roe = calculate_weighted_average(extracted_roe[0], extracted_roe[1], extracted_roe[2])
+            roe_reference = roe.index[-4]
+        return True, selected_roe, roe_reference
+    except Exception as e:
+        print('Exception in calculate_roe :', e)
+        return False, None, None
 
-def calculate_srim(shares, Ke, fh, current_year):
-    last_year = current_year - 1;    
-    #extract&determine roe
-    roe, roe_reference = calculate_roe(fh, current_year)
-    #extract&determine B0 : 지배주주지분
-    B0 = fh.loc['지배주주지분'][-4] * 10**8 # 지난 결산 년도 지배주주지분
-    discount_factor = 1
-    sell_price = calculate_price(B0, roe, Ke, shares, discount_factor)
-    discount_factor = 0.9
-    moderate_price = calculate_price(B0, roe, Ke, shares, discount_factor)    
-    discount_factor = 0.8
-    buy_price = calculate_price(B0, roe, Ke, shares, discount_factor)
-    return buy_price, moderate_price, sell_price, roe, roe_reference
+def calculate_srim(shares, Ke, fh):
+    try:
+        #extract&determine roe
+        status, roe, roe_reference = calculate_roe(fh)
+        if status == False:
+            return False, None, None, None, None, None
+        #extract&determine B0 : 지배주주지분
+        B0 = fh.loc['지배주주지분'][-4] * 10**8 # 지난 결산 년도 지배주주지분
+        discount_factor = 1
+        sell_price = calculate_price(B0, roe, Ke, shares, discount_factor)
+        discount_factor = 0.9
+        moderate_price = calculate_price(B0, roe, Ke, shares, discount_factor)    
+        discount_factor = 0.8
+        buy_price = calculate_price(B0, roe, Ke, shares, discount_factor)
+        return True, buy_price, moderate_price, sell_price, roe, roe_reference
+    except Exception as e:
+        print('Exception in calculate_srim :', e)
+        return False, None, None, None, None, None
 
-
+def check_skip_this_company(name):
+    if name.find('스팩') != -1:
+        return 1
+    elif name.find('리츠') != -1:
+        return 1
+    else :
+        return 0
+        
+        
 
 # start main
 current_year = datetime.now().year
@@ -180,40 +205,40 @@ result_df = pd.DataFrame()
 count_total = 0
 count_record = 0
 count_skip = 0
-#for iter in range(0,len(krx_list)) :
-for iter in range(943,944) : #삼성전자 943
-#for iter in range(161,len(krx_list)) :
+
+#for iter in range(107,len(krx_list)) :
+#for iter in range(943,944) : #삼성전자 943
+for iter in range(0,len(krx_list)) :
+    temp_result_df = pd.DataFrame()
     count_total += 1
     
     start = timeit.default_timer()
     #time.sleep(0.5)
-    print('Iter: ', iter, '\t Name: ', krx_list.iloc[iter]['name'])  
+    print('Iter: ', iter, '\t Name: ', krx_list.iloc[iter]['name'])
 
-    name = krx_list.iloc[iter]['name']
-    if name.find('스팩') != -1:
+    if check_skip_this_company(krx_list.iloc[iter]['name']):
         count_skip += 1
-        print('Skip ', name)
+        print('Skip analyzing ', krx_list.iloc[iter]['name'])
         continue
 
     code = krx_list.iloc[iter]['code']
     html_snapshot, html_fs = get_html_fnguide(code)
 
-    current_price, shares, fh, fs = parse_fnguide(html_snapshot, html_fs)
+    status, current_price, shares, fh, fs = parse_fnguide(html_snapshot, html_fs)
+    if status == False:
+        count_skip += 1
+        continue
     #print('current_price\n', current_price, '\n\n\n')
     #print('shares\n', shares, '\n\n\n')
     #print('fh\n', fh, '\n\n\n')
     #print('fs\n', fs, '\n\n\n')
 
-    buy_price, moderate_price, sell_price, roe, roe_reference = calculate_srim(shares, required_ror_percent, fh, current_year)
-    #print('')
-    #print('current_price: \t', current_price)
-    #print('buy_price: \t', buy_price)
-    #print('moderate_price: \t', moderate_price)
-    #print('sell_price: \t', sell_price)
-    #print('roe: \t', roe)
-    #print('roe_reference: \t', roe_reference)
-    #print('')
+    status, buy_price, moderate_price, sell_price, roe, roe_reference = calculate_srim(shares, required_ror_percent, fh)
+    if status == False:
+        count_skip += 1
+        continue
 
+    # Organize results
     code = krx_list.iloc[iter]['code']
     name = krx_list.iloc[iter]['name']
     current_price = round(current_price)
@@ -226,7 +251,7 @@ for iter in range(943,944) : #삼성전자 943
     roe = roe
     roe_reference = roe_reference
     CF_alerts = int(pd.DataFrame(fs.loc['CF이익검토']).sum())
-    devidend_rate = fh.loc['배당수익률'][-4]
+    devidend_rate = fh.loc['배당수익률'][-4] #지난 결산 년도 배당수익률
     industry = krx_list.iloc[iter]['industry']
     product = krx_list.iloc[iter]['product']
 
@@ -245,4 +270,20 @@ file_name = str(datetime.now().date()) + '.csv'
 result_df.to_csv(path+file_name, mode='w', index=False, na_rep='NaN', encoding='utf-8-sig')
 
 #%%
+print(temp_result_df)
+print(roe)
+print(current_price)
+print(buy_price)
+print(sell_price)
+print(moderate_price)
+print(iter)
+
+print(fs)
+
 print(fh)
+
+print(fh.loc['ROE'])
+
+a = fh.loc['ROE']
+
+print(a[-4:])

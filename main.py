@@ -127,27 +127,27 @@ def calculate_weighted_average(minus2, minus1, minus0):
 def calculate_roe(fh, year):
     roe = fh.loc['ROE',:]
     # +2year(E)
-    if not math.isnan(roe[str(year+2)+'/12(E)']):        
-        selected_roe = roe[str(year+2)+'/12(E)']
-        roe_reference = str(year+2)+'/12(E)'
+    if not math.isnan(roe[-1]):   
+        selected_roe = roe[-1]
+        roe_reference = roe.index[-1]
     # +1year (E)    
-    elif not math.isnan(roe[str(year+1)+'/12(E)']):
-        selected_roe = roe[str(year+1)+'/12(E)']
-        roe_reference = str(year+1)+'/12(E)'
+    elif not math.isnan(roe[-2]):
+        selected_roe = roe[-2]
+        roe_reference = roe.index[-2]
     # 0year (E) - weighted average
-    elif not math.isnan(roe[str(year)+'/12(E)']):
-        minus2 = float(roe[str(year-2)+'/12'])
-        minus1 = float(roe[str(year-1)+'/12'])
-        minus0 = float(roe[str(year)+'/12(E)'])
+    elif not math.isnan(roe[-3]):
+        minus2 = float(roe[-5])
+        minus1 = float(roe[-4])
+        minus0 = float(roe[-3])
         selected_roe = calculate_weighted_average(minus2, minus1, minus0)
-        roe_reference = str(year)+'/12(E)'
+        roe_reference = roe.index[-3]
     # -1year - weighted average
     else:
-        minus2 = float(roe[str(year-3)+'/12'])
-        minus1 = float(roe[str(year-2)+'/12'])
-        minus0 = float(roe[str(year-1)+'/12'])
+        minus2 = float(roe[-6])
+        minus1 = float(roe[-5])
+        minus0 = float(roe[-4])
         selected_roe = calculate_weighted_average(minus2, minus1, minus0)
-        roe_reference = str(year-1)+'/12'
+        roe_reference = roe.index[-4]
     return selected_roe, roe_reference
 
 def calculate_srim(shares, Ke, fh, current_year):
@@ -155,7 +155,7 @@ def calculate_srim(shares, Ke, fh, current_year):
     #extract&determine roe
     roe, roe_reference = calculate_roe(fh, current_year)
     #extract&determine B0 : 지배주주지분
-    B0 = fh.loc['지배주주지분',str(last_year)+'/12'] * 10**8
+    B0 = fh.loc['지배주주지분'][-4] * 10**8 # 지난 결산 년도 지배주주지분
     discount_factor = 1
     sell_price = calculate_price(B0, roe, Ke, shares, discount_factor)
     discount_factor = 0.9
@@ -181,7 +181,8 @@ count_total = 0
 count_record = 0
 count_skip = 0
 #for iter in range(0,len(krx_list)) :
-for iter in range(91,len(krx_list)) :
+for iter in range(943,944) : #삼성전자 943
+#for iter in range(161,len(krx_list)) :
     count_total += 1
     
     start = timeit.default_timer()
@@ -193,7 +194,6 @@ for iter in range(91,len(krx_list)) :
         count_skip += 1
         print('Skip ', name)
         continue
-
 
     code = krx_list.iloc[iter]['code']
     html_snapshot, html_fs = get_html_fnguide(code)
@@ -226,7 +226,7 @@ for iter in range(91,len(krx_list)) :
     roe = roe
     roe_reference = roe_reference
     CF_alerts = int(pd.DataFrame(fs.loc['CF이익검토']).sum())
-    devidend_rate = fh.loc['배당수익률'].loc[str(current_year-1)+'/12']
+    devidend_rate = fh.loc['배당수익률'][-4]
     industry = krx_list.iloc[iter]['industry']
     product = krx_list.iloc[iter]['product']
 
@@ -236,7 +236,7 @@ for iter in range(91,len(krx_list)) :
 
     count_record += 1
     stop = timeit.default_timer()
-    print('Iter: ', iter, '\t Name: ', name, '\tTime: ', stop - start)
+    print('Iter: ', iter, '\t Name: ', name, '\tTime: ', format(stop - start,'.2f'))
 
 #print(result_df)
 
@@ -245,4 +245,4 @@ file_name = str(datetime.now().date()) + '.csv'
 result_df.to_csv(path+file_name, mode='w', index=False, na_rep='NaN', encoding='utf-8-sig')
 
 #%%
-print(krx_list.iloc[11])
+print(fh)

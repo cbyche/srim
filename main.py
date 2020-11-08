@@ -298,11 +298,10 @@ for iter in range(0,len(krx_list)) :
 
 #print(result_df)
 stop_total = timeit.default_timer()
-print('Total Processing Time : ', format((stop_total-start_total)/60, '.1f', ' mins'))
+print('Total Processing Time : ', format((stop_total-start_total)/60, '.1f'), ' mins')
 
 path = str(pathlib.Path().absolute()) + '\\'
 file_name = str(datetime.now().date())
 extension = '.csv'
 result_df.to_csv(path+file_name+extension, mode='w', index=False, na_rep='NaN', encoding='utf-8-sig')
 skip_df.to_csv(path+file_name+'_skipped_'+extension, mode='w', index=False, na_rep='NaN', encoding='utf-8-sig')
-

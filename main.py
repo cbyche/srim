@@ -110,6 +110,8 @@ def parse_fnguide(html_snapshot, html_fs):
         fs.rename(index = {'영업활동으로인한현금흐름': '영업CF'}, inplace = True)
         temp_df = pd.DataFrame({'CF이익차액': fs.loc['영업CF'] - fs.loc['영업이익']}).T
         fs = pd.concat([fs, temp_df])
+        temp_df = pd.DataFrame({'CF이익비율': fs.loc['영업CF'] / fs.loc['영업이익']}).T
+        fs = pd.concat([fs, temp_df])
         #영업이익(+), 영업현금흐름(-) 체크 : 해당하면 1
         temp1 = fs.loc['영업이익'] > 0
         temp2 = fs.loc['영업CF'] < 0
@@ -213,7 +215,8 @@ count_record = 0
 count_skip = 0
 
 start_total = timeit.default_timer()
-for iter in range(0,len(krx_list)) :
+#for iter in range(0,len(krx_list)) :
+for iter in range(0,1) :
     start = timeit.default_timer()
     
     count_total += 1
@@ -265,11 +268,12 @@ for iter in range(0,len(krx_list)) :
     undervalued_rate_buy = round((buy_price - current_price)/current_price * 100, 2)
     undervalued_rate_proper = round((proper_price - current_price)/current_price * 100, 2)
     undervalued_rate_sell = round((sell_price - current_price)/current_price * 100, 2)
-    roe = roe
-    roe_reference = roe_reference
-    CF_alerts = int(pd.DataFrame(fs.loc['CF이익검토']).sum())
+    roe = round(roe, 2)
+    roe_reference = roe_reference    
     devidend_rate = fh.loc['배당수익률'][-4] #지난 결산 년도 배당수익률
     devidend_propensity = round(fh.loc['배당성향(%)'][-4], 2) # 지난 결산 년도 배당성향
+    CF_alerts = int(pd.DataFrame(fs.loc['CF이익검토']).sum())
+    CF_profit_ratio = round(fs.loc['CF이익비율'],2)
     industry = krx_list.iloc[iter]['industry']
     product = krx_list.iloc[iter]['product']
 
@@ -283,14 +287,18 @@ for iter in range(0,len(krx_list)) :
     '적정가격예상수익률(%)':[undervalued_rate_proper], 
     '매도가격예상수익률(%)':[undervalued_rate_sell], 
     'ROE(%)':[roe], 
-    'ROE기준':[roe_reference], 
-    'CF위험(회)':[CF_alerts], 
+    'ROE기준':[roe_reference],
     '배당수익률(%)':[devidend_rate],
     '배당성향(%)': [devidend_propensity],
+    'CF위험(회)':[CF_alerts],
+    CF_profit_ratio.index[0]:[CF_profit_ratio[0]],
+    CF_profit_ratio.index[1]:[CF_profit_ratio[1]],
+    CF_profit_ratio.index[2]:[CF_profit_ratio[2]],
+    CF_profit_ratio.index[3]:[CF_profit_ratio[3]],
     '업종':[industry], 
     '주요제품':[product]})
     result_df = pd.concat([result_df, temp_result_df])
-    #print(result_df)
+    print(result_df)
 
     count_record += 1
     stop = timeit.default_timer()

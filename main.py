@@ -108,8 +108,6 @@ def parse_fnguide(html_snapshot, html_fs):
         fs = pd.concat([ci, cf])
         fs = fs.loc[['영업이익', '영업활동으로인한현금흐름'], :]
         fs.rename(index = {'영업활동으로인한현금흐름': '영업CF'}, inplace = True)
-        temp_df = pd.DataFrame({'CF이익차액': fs.loc['영업CF'] - fs.loc['영업이익']}).T
-        fs = pd.concat([fs, temp_df])
         temp_df = pd.DataFrame({'CF이익비율': fs.loc['영업CF'] / fs.loc['영업이익']}).T
         fs = pd.concat([fs, temp_df])
         #영업이익(+), 영업현금흐름(-) 체크 : 해당하면 1
@@ -215,8 +213,7 @@ count_record = 0
 count_skip = 0
 
 start_total = timeit.default_timer()
-#for iter in range(0,len(krx_list)) :
-for iter in range(0,1) :
+for iter in range(0,len(krx_list)) :
     start = timeit.default_timer()
     
     count_total += 1
@@ -291,14 +288,14 @@ for iter in range(0,1) :
     '배당수익률(%)':[devidend_rate],
     '배당성향(%)': [devidend_propensity],
     'CF위험(회)':[CF_alerts],
-    CF_profit_ratio.index[0]:[CF_profit_ratio[0]],
-    CF_profit_ratio.index[1]:[CF_profit_ratio[1]],
-    CF_profit_ratio.index[2]:[CF_profit_ratio[2]],
-    CF_profit_ratio.index[3]:[CF_profit_ratio[3]],
+    'CF이익비율'+'('+str(CF_profit_ratio.index[0])+')':[CF_profit_ratio[0]],
+    'CF이익비율'+'('+str(CF_profit_ratio.index[1])+')':[CF_profit_ratio[1]],
+    'CF이익비율'+'('+str(CF_profit_ratio.index[2])+')':[CF_profit_ratio[2]],
+    'CF이익비율'+'('+str(CF_profit_ratio.index[3])+')':[CF_profit_ratio[3]],
     '업종':[industry], 
     '주요제품':[product]})
     result_df = pd.concat([result_df, temp_result_df])
-    print(result_df)
+    #print(result_df)
 
     count_record += 1
     stop = timeit.default_timer()

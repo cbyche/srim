@@ -10,23 +10,36 @@ from datetime import datetime
 import pathlib
 import timeit
 import time
+import sys
 
 import utils
 
 exclude_list = ['스팩', '리츠', '증권', '은행', '홀딩스']
+
+path = str(pathlib.Path().absolute()) + '\\'
+file_name = str(datetime.now().date())
+extension = '.csv'
 
 required_ror_percent = utils.get_required_rate_of_return()
 #print(required_ror_percent)
 
 krx_list = utils.get_krx_list()
 #print(krx_list)
+if len(sys.argv) > 1 :
+    new_krx_list = pd.DataFrame()
+    with open(sys.argv[1], 'rt', encoding='UTF8') as f:
+        input_list = f.read().splitlines()
+    for item in input_list:
+        temp = krx_list[krx_list['name']==item]
+        new_krx_list = pd.concat([new_krx_list, temp])
+    krx_list = new_krx_list
+    file_name = 'own'+file_name
+
 
 result_df = pd.DataFrame()
 skip_df = pd.DataFrame()
 
-path = str(pathlib.Path().absolute()) + '\\'
-file_name = str(datetime.now().date())
-extension = '.csv'
+
 
 count_total = 0
 count_record = 0

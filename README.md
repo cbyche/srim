@@ -30,11 +30,12 @@ $python main.py
 - Used ROE
 - The number of cash flow risk since last 3 years
   - operating profit (+) && operating cash flow (-)
+- Ratio of cash flow to business profit
 - Devidend
 
 ## History
 ### v0.2 (Scheduled)
-- Toal equity - Controlling shareholder
+- Toal equity for Controlling shareholder
   - Reflection of future growth of 10 years
 ### v0.1 (2020.11.08)
 - ROE
@@ -43,7 +44,7 @@ $python main.py
 - Total equity - Controlling shareholder
   - the latest settlement year
 - Excluded from analysis
-  - Companies related with SPAC, REITs, Bank, Finance
+  - Companies related with SPAC, REITs, Bank, Finance, and holdings
   - Companies with unformatted financial statement
   - Companies having problems with ROE or total equity (ex. complete encroachment, not provided)
 

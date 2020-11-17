@@ -189,7 +189,7 @@ def calculate_srim(shares, Ke, fh):
         return False, str(e), None, None, None, None, None
 
 def check_skip_this_company(name):
-    matches = ['스팩', '리츠', '증권', '은행']
+    matches = ['스팩', '리츠', '증권', '은행', '홀딩스']
     if any(x in name for x in matches):
         return 1
     else :
@@ -288,10 +288,10 @@ for iter in range(0,len(krx_list)) :
     '배당수익률(%)':[devidend_rate],
     '배당성향(%)': [devidend_propensity],
     'CF위험(회)':[CF_alerts],
-    'CF이익비율'+'('+str(CF_profit_ratio.index[0])+')':[CF_profit_ratio[0]],
-    'CF이익비율'+'('+str(CF_profit_ratio.index[1])+')':[CF_profit_ratio[1]],
-    'CF이익비율'+'('+str(CF_profit_ratio.index[2])+')':[CF_profit_ratio[2]],
-    'CF이익비율'+'('+str(CF_profit_ratio.index[3])+')':[CF_profit_ratio[3]],
+    'CF이익비율-3':[CF_profit_ratio[0]],
+    'CF이익비율-2':[CF_profit_ratio[1]],
+    'CF이익비율-1':[CF_profit_ratio[2]],
+    'CF이익비율0':[CF_profit_ratio[3]],
     '업종':[industry], 
     '주요제품':[product]})
     result_df = pd.concat([result_df, temp_result_df])

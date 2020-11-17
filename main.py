@@ -31,6 +31,8 @@ if len(sys.argv) > 1 :
         input_list = f.read().splitlines()
     for item in input_list:
         temp = krx_list[krx_list['name']==item]
+        if (temp.empty) :
+            print('[Failed] Please check the company name :', item)
         new_krx_list = pd.concat([new_krx_list, temp])
     krx_list = new_krx_list
     file_name = file_name+'_from_list'
@@ -108,12 +110,12 @@ for iter in range(0,len(krx_list)) :
 
     # write to csv file
     if not (iter % 10):
-        if not os.path.isfile(path+file_name+extension):
-            result_df.to_csv(path+file_name+extension, mode='a', index=False, na_rep='NaN', encoding='utf-8-sig')
-        if not os.path.isfile(path+file_name+'_skipped'+extension):
-            skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', index=False, na_rep='NaN', encoding='utf-8-sig')
-        result_df.to_csv(path+file_name+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
-        skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
+        result_header = False
+        skip_header = False
+        if not os.path.isfile(path+file_name+extension): result_header = True
+        if not os.path.isfile(path+file_name+'_skipped'+extension): skip_header = True
+        result_df.to_csv(path+file_name+extension, mode='a', header=result_header, index=False, na_rep='NaN', encoding='utf-8-sig')
+        skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=skip_header, index=False, na_rep='NaN', encoding='utf-8-sig')
         print('write!')
         result_df = pd.DataFrame()
         skip_df = pd.DataFrame()

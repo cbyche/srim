@@ -33,7 +33,7 @@ if len(sys.argv) > 1 :
         temp = krx_list[krx_list['name']==item]
         new_krx_list = pd.concat([new_krx_list, temp])
     krx_list = new_krx_list
-    file_name = 'own'+file_name
+    file_name = file_name+'from_list'
 
 
 result_df = pd.DataFrame()

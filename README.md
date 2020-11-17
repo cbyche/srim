@@ -6,12 +6,20 @@
 
 
 ## How to Run
+If you want analyze all companies,
 ```
 $python main.py
 ```
+If you want analyze certain list of companies
+```
+$python main.py company_list.txt
+```
 
 ## Input
-- None
+- If you want analyze certain list of companies
+  - Make a txt file which lists names of companies
+  - Run main.py with this txt file as an argument
+  - Company names should be separated by enter
 
 ## Output
 - *'date'*.csv : RIM analysis results
@@ -34,9 +42,12 @@ $python main.py
 - Devidend
 
 ## History
-### v0.2 (Scheduled)
+### v0.3 (Scheduled, but not fixed)
 - Toal equity for Controlling shareholder
   - Reflection of future growth of 10 years
+### v0.2 (2020.11.17)
+- Analyze only the specified list
+  - Can receive txt file which lists the company names you want to analyze as an argument
 ### v0.1 (2020.11.08)
 - ROE
   - If consensus exists, then I use it.

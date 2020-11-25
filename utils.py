@@ -186,8 +186,10 @@ def calculate_srim(shares, Ke, fh):
         print('Exception in calculate_srim :', e)
         return False, str(e), None, None, None, None, None
 
-def check_skip_this_company(name, matches):    
-    if any(x in name for x in matches):
+def check_skip_this_company(name, matches_endswith, matches_exact):    
+    if any(name.endswith(x) for x in matches_endswith):
+        return 1
+    elif name in matches_exact:
         return 1
     else :
         return 0

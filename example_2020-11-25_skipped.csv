@@ -1,13 +1,20 @@
-﻿code,name,reason
+﻿
 011810,STX,Error on calculate_srim : could not convert string to float: '완전잠식'
 353200,대덕전자,Error on parse_fnguide : Neither IFRS(연결) nor GAAP(연결)
+000640,동아쏘시오홀딩스,분석 제외 대상
 008560,메리츠증권,분석 제외 대상
 204210,모두투어리츠,분석 제외 대상
 001270,부국증권,분석 제외 대상
+000070,삼양홀딩스,분석 제외 대상
 001290,상상인증권,분석 제외 대상
 293940,신한알파리츠,분석 제외 대상
+055550,신한지주,분석 제외 대상
+013360,일성건설,분석 제외 대상
 271980,제일약품,Error on calculate_srim : not enough ROE history
+002620,제일파마홀딩스,분석 제외 대상
 168490,한국패러랠,Error on parse_fnguide : list index out of range
+060980,한라홀딩스,분석 제외 대상
+000720,현대건설,분석 제외 대상
 001500,현대차증권,분석 제외 대상
 351340,IBKS제13호스팩,분석 제외 대상
 337450,SK5호스팩,분석 제외 대상
@@ -15,38 +22,55 @@
 307280,교보8호스팩,분석 제외 대상
 327260,메탈라이프,Error on calculate_srim : not enough ROE history
 310200,애니플러스,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
+078070,유비쿼스홀딩스,분석 제외 대상
 336060,유안타제5호스팩,분석 제외 대상
-331380,유진스팩5호,분석 제외 대상
+331380,유진스팩5호,Error on calculate_srim : not enough ROE history
+900110,이스트아시아홀딩스,분석 제외 대상
 353810,이지바이오,Error on parse_fnguide : Neither IFRS(연결) nor GAAP(연결)
 254120,자비스,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 342550,케이비제20호스팩,분석 제외 대상
+026150,특수건설,분석 제외 대상
 341160,하나금융15호스팩,분석 제외 대상
 323350,다원넥스뷰,Error on calculate_srim : not enough ROE history
 086080,다이노나,Error on calculate_srim : could not convert string to float: '완전잠식'
 271850,다이오진,Error on calculate_srim : can't multiply sequence by non-int of type 'numpy.float64'
+223220,아이피몬스터,Error on calculate_srim : could not convert string to float: '완전잠식'
 276240,엘리비젼,Error on calculate_srim : can't multiply sequence by non-int of type 'numpy.float64'
 336040,이도바이오,Error on calculate_srim : not enough ROE history
 314130,지놈앤컴퍼니,Error on calculate_srim : could not convert string to float: '완전잠식'
-309900,티티씨디펜스,Error on calculate_srim : not enough ROE history
 354230,폭스소프트,Error on calculate_srim : not enough ROE history
+096760,JW홀딩스,분석 제외 대상
 024110,기업은행,분석 제외 대상
+047040,대우건설,분석 제외 대상
+107590,미원홀딩스,분석 제외 대상
+058650,세아홀딩스,분석 제외 대상
+006880,신송홀딩스,분석 제외 대상
+015360,예스코홀딩스,분석 제외 대상
+001630,종근당홀딩스,분석 제외 대상
+109070,컨버즈,Error on calculate_srim : could not convert string to float: '완전잠식'
 281820,케이씨텍,Error on calculate_srim : not enough ROE history
-328380,미래에셋대우스팩3호,분석 제외 대상
+192400,쿠쿠홀딩스,분석 제외 대상
+071050,한국금융지주,분석 제외 대상
+006200,한국전자홀딩스,분석 제외 대상
+000240,한국테크놀로지그룹,분석 제외 대상
+227840,현대코퍼레이션홀딩스,분석 제외 대상
+054620,APS홀딩스,분석 제외 대상
+005990,매일홀딩스,분석 제외 대상
+328380,미래에셋대우스팩3호,Error on calculate_srim : not enough ROE history
 100790,미래에셋벤처투자,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
-323280,신영스팩5호,분석 제외 대상
+323280,신영스팩5호,Error on calculate_srim : not enough ROE history
 333050,신한제6호스팩,분석 제외 대상
-052770,아이톡시,Error on calculate_srim : could not convert string to float: '완전잠식'
-319400,엔에이치스팩14호,분석 제외 대상
+319400,엔에이치스팩14호,Error on calculate_srim : not enough ROE history
 313760,윌링스,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 340360,유안타제6호스팩,분석 제외 대상
-264850,이랜시스,Error on calculate_srim : not enough ROE history
-349720,이베스트스팩5호,분석 제외 대상
+349720,이베스트스팩5호,Error on parse_fnguide : Neither IFRS(연결) nor GAAP(연결)
 083470,이엠앤아이,Error on calculate_srim : could not convert string to float: '완전잠식'
 330990,케이비제19호스팩,분석 제외 대상
 311270,키움제5호스팩,분석 제외 대상
 347770,핌스,Error on calculate_srim : not enough ROE history
 318000,한국바이오젠,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 053660,현진소재,Error on calculate_srim : can't multiply sequence by non-int of type 'numpy.float64'
+028080,휴맥스홀딩스,분석 제외 대상
 329050,구스앤홈,Error on calculate_srim : not enough ROE history
 317860,노드메이슨,Error on calculate_srim : not enough ROE history
 176750,듀켐바이오,Error on calculate_srim : could not convert string to float: '완전잠식'
@@ -54,7 +78,13 @@
 266470,바이오인프라생명과학,Error on calculate_srim : can't multiply sequence by non-int of type 'numpy.float64'
 329020,오션스톤,Error on calculate_srim : not enough ROE history
 279060,이노벡스,Error on calculate_srim : not enough ROE history
+138930,BNK금융지주,분석 제외 대상
+006360,GS건설,분석 제외 대상
+101060,SBS미디어홀딩스,분석 제외 대상
 030610,교보증권,분석 제외 대상
+005250,녹십자홀딩스,분석 제외 대상
+072710,농심홀딩스,분석 제외 대상
+001880,대림건설,분석 제외 대상
 336260,두산퓨얼셀,Error on calculate_srim : not enough ROE history
 088980,맥쿼리인프라,Error on parse_fnguide : list index out of range
 357250,미래에셋맵스리츠,분석 제외 대상
@@ -65,30 +95,37 @@
 145270,케이탑리츠,분석 제외 대상
 357120,코람코에너지리츠,분석 제외 대상
 012170,키위미디어그룹,Error on calculate_srim : can't multiply sequence by non-int of type 'numpy.float64'
-363280,티와이홀딩스,Error on calculate_srim : not enough ROE history
-322780,DB금융스팩7호,분석 제외 대상
+363280,티와이홀딩스,분석 제외 대상
+005810,풍산홀딩스,분석 제외 대상
+024720,한국콜마홀딩스,분석 제외 대상
+004150,한솔홀딩스,분석 제외 대상
+322780,DB금융스팩7호,Error on calculate_srim : not enough ROE history
 299170,IBKS제10호스팩,분석 제외 대상
+021320,KCC건설,분석 제외 대상
 331520,교보9호스팩,분석 제외 대상
 267320,나인테크,Error on calculate_srim : could not convert string to float: '완전잠식'
+330860,네패스아크,Error on calculate_srim : not enough ROE history
 307750,대신밸런스제6호스팩,분석 제외 대상
 261200,덴티스,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
+025950,동신건설,분석 제외 대상
 301300,바이브컴퍼니,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
-950200,소마젠,Error on calculate_srim : not enough ROE history
 226330,신테카바이오,Error on calculate_srim : not enough ROE history
 323230,신한제5호스팩,분석 제외 대상
-027360,아주IB투자,Error on calculate_srim : not enough ROE history
 298380,에이비엘바이오,Error on calculate_srim : could not convert string to float: '완전잠식'
 060850,영림원소프트랩,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
+030530,원익홀딩스,분석 제외 대상
 264450,유비쿼스,Error on calculate_srim : not enough ROE history
 313750,유안타제4호스팩,분석 제외 대상
+039020,이건홀딩스,분석 제외 대상
+035080,인터파크,분석 제외 대상
 317530,캐리소프트,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 323940,케이비제18호스팩,분석 제외 대상
 190650,코리아에셋투자증권,분석 제외 대상
 124560,태웅로직스,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 322180,티라유텍,Error on calculate_srim : not enough ROE history
-304840,피플바이오,Error on calculate_srim : could not convert string to float: '완전잠식'
 332710,하나금융14호스팩,분석 제외 대상
 343510,하나금융16호스팩,분석 제외 대상
+299030,하나기술,Error on parse_fnguide : could not convert string to float: ''
 317240,하이제4호스팩,분석 제외 대상
 291210,한국제7호스팩,분석 제외 대상
 039670,한류타임즈,Error on calculate_srim : can't multiply sequence by non-int of type 'numpy.float64'
@@ -98,42 +135,67 @@
 001510,SK증권,분석 제외 대상
 094800,맵스리얼티1,Error on parse_fnguide : list index out of range
 155900,바다로19호,Error on parse_fnguide : Cannot remove 1 levels from an index with 1 levels: at least one level must be left.
+002030,아세아,분석 제외 대상
 140910,에이리츠,분석 제외 대상
+009970,영원무역홀딩스,분석 제외 대상
 001200,유진증권,분석 제외 대상
 344820,케이씨씨글라스,Error on parse_fnguide : Neither IFRS(연결) nor GAAP(연결)
 039490,키움증권,분석 제외 대상
 001750,한양증권,분석 제외 대상
 097230,한진중공업,Error on calculate_srim : could not convert string to float: '완전잠식'
+003480,한진중공업홀딩스,분석 제외 대상
 307070,SK4호스팩,분석 제외 대상
+348150,고바이오랩,Error on calculate_srim : not enough ROE history
 253590,네오셈,Error on calculate_srim : not enough ROE history
+042420,네오위즈홀딩스,분석 제외 대상
 332290,대신밸런스제7호스팩,분석 제외 대상
+206400,베노홀딩스,분석 제외 대상
+347000,센코,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 307180,아이엘사이언스,Error on calculate_srim : could not convert string to float: '완전잠식'
 298060,에스씨엠생명과학,Error on calculate_srim : could not convert string to float: '완전잠식'
 353070,에이치엠씨제4호스팩,분석 제외 대상
 347890,엠투아이,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
+072470,우리산업홀딩스,분석 제외 대상
 103840,우양,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
+035810,이지홀딩스,분석 제외 대상
 307930,컴퍼니케이,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
+340570,티앤엘,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
+056730,포스링크,Error on calculate_srim : can't multiply sequence by non-int of type 'numpy.float64'
+031980,피에스케이홀딩스,분석 제외 대상
+304840,피플바이오,Error on calculate_srim : could not convert string to float: '완전잠식'
 106080,하이소닉,Error on calculate_srim : could not convert string to float: '완전잠식'
 251280,안지오랩,Error on calculate_srim : could not convert string to float: '완전잠식'
 084440,유비온,Error on calculate_srim : could not convert string to float: '완전잠식'
+006840,AK홀딩스,분석 제외 대상
+001040,CJ,분석 제외 대상
+139130,DGB금융지주,분석 제외 대상
+001940,KISCO홀딩스,분석 제외 대상
+003550,LG,분석 제외 대상
 338100,NH프라임리츠,분석 제외 대상
+036530,S&T홀딩스,분석 제외 대상
+012320,경동인베스트,분석 제외 대상
+016710,대성홀딩스,분석 제외 대상
 280360,롯데제과,Error on calculate_srim : not enough ROE history
+034300,신세계건설,분석 제외 대상
 001720,신영증권,분석 제외 대상
+900140,엘브이엠씨,분석 제외 대상
+316140,우리금융지주,분석 제외 대상
 003470,유안타증권,분석 제외 대상
 264900,크라운제과,Error on calculate_srim : not enough ROE history
+005740,크라운해태홀딩스,분석 제외 대상
 172580,하이골드12호,Error on parse_fnguide : Cannot remove 1 levels from an index with 1 levels: at least one level must be left.
-335890,IBKS제11호스팩,분석 제외 대상
 351320,IBKS제14호스팩,분석 제외 대상
 950180,SNK,Error on calculate_srim : not enough ROE history
 311390,네오크레마,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 317120,라닉스,Error on calculate_srim : not enough ROE history
 300120,라온피플,Error on calculate_srim : not enough ROE history
 235980,메드팩토,Error on calculate_srim : not enough ROE history
-333430,미래에셋대우스팩4호,분석 제외 대상
+333430,미래에셋대우스팩4호,Error on calculate_srim : not enough ROE history
+323990,박셀바이오,Error on calculate_srim : not enough ROE history
 288330,브릿지바이오,Error on calculate_srim : could not convert string to float: '완전잠식'
 258790,소프트캠프,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 262260,에이프로,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
-310840,엔에이치스팩13호,분석 제외 대상
+310840,엔에이치스팩13호,Error on calculate_srim : not enough ROE history
 244460,올리패스,Error on calculate_srim : could not convert string to float: '완전잠식'
 332570,와이팜,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 322510,제이엘케이,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
@@ -147,86 +209,132 @@
 225860,엠앤씨생명과학,Error on calculate_srim : could not convert string to float: '완전잠식'
 337840,유엑스엔,Error on calculate_srim : not enough ROE history
 341310,이앤에치,Error on calculate_srim : not enough ROE history
+140290,청광건설,분석 제외 대상
 327610,펨토바이오메드,Error on calculate_srim : not enough ROE history
+000590,CS홀딩스,분석 제외 대상
+009440,KC그린홀딩스,분석 제외 대상
+092230,KPX홀딩스,분석 제외 대상
 267290,경동도시가스,Error on calculate_srim : not enough ROE history
 003540,대신증권,분석 제외 대상
-000060,메리츠화재,분석 제외 대상
+003090,대웅,분석 제외 대상
+005960,동부건설,분석 제외 대상
 268280,미원에스씨,Error on calculate_srim : not enough ROE history
-088260,이리츠코크렙,분석 제외 대상
+000180,성창기업지주,분석 제외 대상
+002790,아모레퍼시픽그룹,분석 제외 대상
+025530,에스제이엠홀딩스,분석 제외 대상
+000230,일동홀딩스,분석 제외 대상
+015860,일진홀딩스,분석 제외 대상
 317400,자이에스앤디,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 348950,제이알글로벌리츠,분석 제외 대상
+035000,지투알,분석 제외 대상
 153360,하이골드3호,Error on parse_fnguide : Cannot remove 1 levels from an index with 1 levels: at least one level must be left.
 152550,한국ANKOR유전,Error on parse_fnguide : list index out of range
-353490,미래에셋대우스팩 5호,분석 제외 대상
-323990,박셀바이오,Error on calculate_srim : not enough ROE history
-309930,삼성머스트스팩3호,분석 제외 대상
+081660,휠라홀딩스,분석 제외 대상
+353490,미래에셋대우스팩 5호,Error on calculate_srim : not enough ROE history
+950190,미투젠,Error on calculate_srim : not enough ROE history
+309930,삼성머스트스팩3호,Error on calculate_srim : not enough ROE history
 307870,상상인이안1호스팩,분석 제외 대상
 331920,셀레믹스,Error on calculate_srim : not enough ROE history
 299660,셀리드,Error on calculate_srim : could not convert string to float: '완전잠식'
-357780,솔브레인,Error on calculate_srim : not enough ROE history
+950200,소마젠,Error on calculate_srim : not enough ROE history
+357780,솔브레인,Error on parse_fnguide : Neither IFRS(연결) nor GAAP(연결)
+054800,아이디스홀딩스,분석 제외 대상
+027360,아주IB투자,Error on calculate_srim : not enough ROE history
+117670,알파홀딩스,분석 제외 대상
 293780,압타바이오,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 312610,에이에프더블류,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
+016250,이테크건설,분석 제외 대상
 321550,티움바이오,Error on calculate_srim : not enough ROE history
 318010,팜스빌,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 310870,한국제8호스팩,분석 제외 대상
 317320,한화에스비아이스팩,분석 제외 대상
+348840,데이드림엔터,Error on calculate_srim : not enough ROE history
+267060,명진홀딩스,분석 제외 대상
 122830,원포유,Error on calculate_srim : not enough ROE history
 327970,케어룸의료산업,Error on calculate_srim : not enough ROE history
+309900,티티씨디펜스,Error on calculate_srim : not enough ROE history
+027410,BGF,분석 제외 대상
 030210,KTB투자증권,분석 제외 대상
 071970,STX중공업,Error on calculate_srim : could not convert string to float: '완전잠식'
 282690,동아타이어,Error on calculate_srim : not enough ROE history
 330590,롯데리츠,분석 제외 대상
 138040,메리츠금융지주,분석 제외 대상
+003030,세아제강지주,분석 제외 대상
+001800,오리온홀딩스,분석 제외 대상
 334890,이지스밸류플러스리츠,분석 제외 대상
+002020,코오롱,분석 제외 대상
+004870,티웨이홀딩스,분석 제외 대상
+010770,평화홀딩스,분석 제외 대상
+000140,하이트진로홀딩스,분석 제외 대상
 003530,한화투자증권,분석 제외 대상
+267250,현대중공업지주,분석 제외 대상
+335890,IBKS제11호스팩,분석 제외 대상
 335870,IBKS제12호스팩,분석 제외 대상
 290660,네오펙트,Error on calculate_srim : could not convert string to float: '완전잠식'
 317850,대모,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
-291230,삼성스팩2호,분석 제외 대상
+291230,삼성스팩2호,Error on calculate_srim : not enough ROE history
+036710,심텍홀딩스,분석 제외 대상
 125210,아모그린텍,Error on calculate_srim : could not convert string to float: '완전잠식'
+052770,아이톡시,Error on calculate_srim : could not convert string to float: '완전잠식'
 158430,아톤,Error on calculate_srim : not enough ROE history
 291650,압타머사이언스,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
-359090,엔에이치스팩17호,분석 제외 대상
+359090,엔에이치스팩17호,Error on parse_fnguide : Neither IFRS(연결) nor GAAP(연결)
 086250,이노와이즈,Error on calculate_srim : not enough ROE history
 078020,이베스트투자증권,분석 제외 대상
+051780,큐로홀딩스,분석 제외 대상
 307160,하나머스트제6호스팩,분석 제외 대상
+003380,하림지주,분석 제외 대상
 340120,하이제5호스팩,분석 제외 대상
 266170,뿌리깊은나무들,Error on calculate_srim : could not convert string to float: '완전잠식'
 258540,스템랩,Error on calculate_srim : could not convert string to float: '완전잠식'
 203400,에이비온,Error on calculate_srim : could not convert string to float: '완전잠식'
 179720,옐로페이,Error on calculate_srim : could not convert string to float: '완전잠식'
+078930,GS,분석 제외 대상
+175330,JB금융지주,분석 제외 대상
 005940,NH투자증권,분석 제외 대상
+034730,SK,분석 제외 대상
+000320,노루홀딩스,분석 제외 대상
+084690,대상홀딩스,분석 제외 대상
+004990,롯데지주,분석 제외 대상
 326030,에스케이바이오팜,Error on calculate_srim : can't multiply sequence by non-int of type 'numpy.float64'
+000700,유수홀딩스,분석 제외 대상
 350520,이지스레지던스리츠,분석 제외 대상
 006220,제주은행,분석 제외 대상
+100250,진양홀딩스,분석 제외 대상
+009410,태영건설,분석 제외 대상
+086790,하나금융지주,분석 제외 대상
+016450,한세예스24홀딩스,분석 제외 대상
 300720,한일시멘트,Error on calculate_srim : not enough ROE history
+003300,한일홀딩스,분석 제외 대상
+121440,골프존뉴딘홀딩스,분석 제외 대상
 355150,교보10호기업인수목적,Error on calculate_srim : not enough ROE history
 348210,넥스틴,Error on calculate_srim : could not convert string to float: '완전잠식'
 336570,대신밸런스제8호스팩,분석 제외 대상
+298540,더네이쳐홀딩스,분석 제외 대상
 294140,레몬,Error on calculate_srim : could not convert string to float: '완전잠식'
 318410,비비씨,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 054220,비츠로시스,Error on calculate_srim : could not convert string to float: '완전잠식'
 329560,상상인이안제2호스팩,분석 제외 대상
-347000,센코,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
+035890,서희건설,분석 제외 대상
+036830,솔브레인홀딩스,분석 제외 대상
 304100,솔트룩스,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 317770,슈프리마아이디,Error on calculate_srim : not enough ROE history
-344050,신영스팩6호,분석 제외 대상
+344050,신영스팩6호,Error on calculate_srim : not enough ROE history
 297570,알로이스,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 317830,에스피시스템스,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
-353190,엔에이치스팩16호,분석 제외 대상
+353190,엔에이치스팩16호,Error on parse_fnguide : Neither IFRS(연결) nor GAAP(연결)
 287410,유안타제3호스팩,분석 제외 대상
-321260,유진스팩4호,분석 제외 대상
-323210,이베스트이안스팩1호,분석 제외 대상
+321260,유진스팩4호,Error on calculate_srim : not enough ROE history
+323210,이베스트이안스팩1호,Error on calculate_srim : not enough ROE history
 216080,제테마,Error on calculate_srim : could not convert string to float: '완전잠식'
 270520,지엔원에너지,Error on calculate_srim : not enough ROE history
 347140,케이프이에스제4호,Error on parse_fnguide : Neither IFRS(연결) nor GAAP(연결)
 300080,플리토,Error on calculate_srim : could not convert string to float: 'N/A(IFRS)'
 347740,피엔케이피부임상연구센타,Error on calculate_srim : not enough ROE history
+060560,홈센타홀딩스,분석 제외 대상
 224880,SGA클라우드서비스,Error on calculate_srim : could not convert string to float: '완전잠식'
 288490,나라소프트,Error on calculate_srim : can't multiply sequence by non-int of type 'numpy.float64'
-348840,데이드림엔터,Error on calculate_srim : not enough ROE history
 236340,메디젠휴먼케어,Error on calculate_srim : could not convert string to float: '완전잠식'
-223220,아이피몬스터,Error on calculate_srim : could not convert string to float: '완전잠식'
 344860,이노진,Error on calculate_srim : not enough ROE history
 222670,플럼라인생명과학,Error on calculate_srim : could not convert string to float: '완전잠식'
 239890,피엔에이치테크,Error on calculate_srim : not enough ROE history

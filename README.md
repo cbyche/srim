@@ -6,7 +6,7 @@
 
 
 ## How to Run
-If you want analyze all companies,
+If you want analyze all companies, (It takes about an hour)
 ```
 $python main.py
 ```

@@ -44,9 +44,9 @@ $python main.py company_list.txt
 ## Tips
 - Filtering
   - Filtering out if 'the number of cash flow risk' exists
-  - Filtering out if 'ratio of cash flow to business profilt' is below than 0.8
+  - Filtering out if 'ratio of cash flow to business profilt' < 0.8
   - Filtering out if 'devidend' doesn't exist
-  - Filtering out if 'ROE' is lower than 'expected rate of return'
+  - Filtering out if 'ROE' < 'expected rate of return'
 - Finding companies with 'current price' < 'buy price'
 - Taking a first-hand look at the financial statements of those companies
 - Choosing companies to invest in

@@ -16,7 +16,7 @@ import utils
 
 
 exclude_list_endswith = ['스팩', '리츠', '증권', '은행', '홀딩스', '지주', '건설']
-exclude_list_exact = ['한국테크놀로지그룹', '인터파크', '아세아', 'CJ', 'LG', '경동인베스트', '엘브이엠씨', '대웅', '아모레퍼시픽그룹', '지투알', 'BGF', '코오롱', 'GS', 'SK']; #holdings
+exclude_list_exact = ['한국테크놀로지그룹', '인터파크', '아세아', 'CJ', 'LG', '경동인베스트', '엘브이엠씨', '대웅', '아모레퍼시픽그룹', '지투알', 'BGF', '코오롱', 'GS', 'SK', '한화', '현대모비스', 'DL', 'HDC', '동원개발', ]; #holdings
 exclude_list_contain = ['스팩']
 
 path = str(pathlib.Path().absolute()) + '\\'
@@ -29,7 +29,7 @@ krx_list = utils.get_krx_list()
 #print(krx_list)
 if len(sys.argv) > 1 :
     new_krx_list = pd.DataFrame()
-    with open(sys.argv[1], 'rt', encoding='UTF8') as f:
+    with open(sys.argv[1], 'rt', encoding='utf-8-sig') as f:
         input_list = f.read().splitlines()
     for item in input_list:
         temp = krx_list[krx_list['name']==item]
@@ -113,13 +113,17 @@ for iter in range(0,len(krx_list)) :
     # write to csv file
     if not (iter % 10):
         result_header = False
-        skip_header = False
-        if not os.path.isfile(path+file_name+extension): result_header = True
-        if not os.path.isfile(path+file_name+'_skipped'+extension): skip_header = True
+        if not os.path.isfile(path+file_name+extension):
+            result_header = True
         result_df.to_csv(path+file_name+extension, mode='a', header=result_header, index=False, na_rep='NaN', encoding='utf-8-sig')
-        skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=skip_header, index=False, na_rep='NaN', encoding='utf-8-sig')
         result_df = pd.DataFrame()
-        skip_df = pd.DataFrame()
+        skip_header = False
+        if not os.path.isfile(path+file_name+'_skipped'+extension):
+            skip_header = True
+        if not skip_df.empty:
+            skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=skip_header, index=False, na_rep='NaN', encoding='utf-8-sig')
+            skip_df = pd.DataFrame()
+
 
 #print(result_df)
 result_df.to_csv(path+file_name+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')

@@ -16,7 +16,7 @@ import utils
 
 
 exclude_list_endswith = ['스팩', '리츠', '증권', '은행', '홀딩스', '지주', '건설']
-exclude_list_exact = ['한국테크놀로지그룹', '인터파크', '아세아', 'CJ', 'LG', '경동인베스트', '엘브이엠씨', '대웅', '아모레퍼시픽그룹', '지투알', 'BGF', '코오롱', 'GS', 'SK', '한화', '현대모비스', 'DL', 'HDC', '동원개발', ]; #holdings
+exclude_list_exact = ['한국테크놀로지그룹', '인터파크', '아세아', 'CJ', 'LG', '경동인베스트', '엘브이엠씨', '대웅', '아모레퍼시픽그룹', '지투알', 'BGF', '코오롱', 'GS', 'SK', '한화', '현대모비스', 'DL', 'HDC', '효성', '동원개발', ]; #holdings
 exclude_list_contain = ['스팩']
 
 path = str(pathlib.Path().absolute()) + '\\'
@@ -78,7 +78,7 @@ for iter in range(0,len(krx_list)) :
         continue
 
     # parse_fnguide
-    status, msg, current_price, shares, fh, fs = utils.parse_fnguide(html_snapshot, html_fs)
+    status, msg, current_price, shares, fh, fh_quater, fs = utils.parse_fnguide(html_snapshot, html_fs)
     if status == False:
         count_skip += 1
         print('[Failed] Iter: ', iter, '\t Code: ', code, '\t Name: ', name, '\t Reason:', 'Error on parse_fnguide ('+msg+')')
@@ -96,7 +96,7 @@ for iter in range(0,len(krx_list)) :
         continue
 
     # organize_result
-    status, msg, temp_result_df = utils.organize_result(code, name, current_price, buy_price, proper_price, sell_price, roe, roe_reference, fh, fs, krx_list.iloc[iter]['industry'], krx_list.iloc[iter]['product'])
+    status, msg, temp_result_df = utils.organize_result(code, name, current_price, buy_price, proper_price, sell_price, roe, roe_reference, fh, fh_quater, fs, krx_list.iloc[iter]['industry'], krx_list.iloc[iter]['product'])
     if status == False:
         count_skip += 1
         print('[Failed] Iter: ', iter, '\t Code: ', code, '\t Name: ', name, '\t Reason:', 'Error on organize_result ('+msg+')')

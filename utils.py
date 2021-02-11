@@ -176,15 +176,24 @@ def calculate_srim(shares, Ke, fh):
         #extract&determine B0 : 지배주주지분
         B0 = fh.loc['지배주주지분'][-4] * 10**8 # 지난 결산 년도 지배주주지분
         discount_factor = 1
-        sell_price = calculate_price(B0, roe, Ke, shares, discount_factor)
+        sell_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor))
         discount_factor = 0.9
-        proper_price = calculate_price(B0, roe, Ke, shares, discount_factor)    
+        proper_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor))
         discount_factor = 0.8
-        buy_price = calculate_price(B0, roe, Ke, shares, discount_factor)
+        buy_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor))
         return True, '', buy_price, proper_price, sell_price, roe, roe_reference
     except Exception as e:
         print('Exception in calculate_srim :', e)
         return False, str(e), None, None, None, None, None
+
+def match_tick_size(price):
+    if (price >= 100000):
+        tick_price = round(price,-3)
+    elif (price >= 10000):
+        tick_price = round(price,-2)
+    else:
+        tick_price = round(price,-1)
+    return tick_price
 
 def check_skip_this_company(name, matches_endswith, matches_exact, matches_contain):
     if any(name.endswith(x) for x in matches_endswith):

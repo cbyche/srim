@@ -10,6 +10,61 @@ import pathlib
 import timeit
 import time
 
+def run(sema, path, file_name, extension, exclude_list_endswith, exclude_list_exact, exclude_list_contain, required_ror_percent, idx, name, code, industry, product):
+    
+    proc = os.getpid()
+    # print(proc)
+
+    # check_skip_this_company
+    if check_skip_this_company(name, exclude_list_endswith, exclude_list_exact, exclude_list_contain):
+        print('[Failed] Idx: ', idx, '\t Code: ', code, '\t Name: ', name, '\t Reason:', '분석 제외 대상')
+        skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['분석 제외 대상']})
+        skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
+        sema.release()
+        return
+
+    # get_html_fnguide
+    status, msg, html_snapshot, html_fs = get_html_fnguide(code)
+    if status == False:
+        print('[Failed] Idx: ', idx, '\t Code: ', code, '\t Name: ', name, '\t Reason:', 'Error on get_html_fnguide ('+msg+')')
+        skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on get_html_fnguide : '+msg]})
+        skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
+        sema.release()
+        return
+
+    # parse_fnguide
+    status, msg, current_price, shares, fh, fh_quater, fs = parse_fnguide(html_snapshot, html_fs)
+    if status == False:
+        print('[Failed] Idx: ', idx, '\t Code: ', code, '\t Name: ', name, '\t Reason:', 'Error on parse_fnguide ('+msg+')')
+        skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on parse_fnguide : '+msg]})
+        skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
+        sema.release()
+        return
+
+    # calculate_srim
+    status, msg, buy_price, proper_price, sell_price, roe, roe_reference = calculate_srim(shares, required_ror_percent, fh)
+    if status == False:
+        print('[Failed] Idx: ', idx, '\t Code: ', code, '\t Name: ', name, '\t Reason:', 'Error on calculate_srim ('+msg+')')
+        skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on calculate_srim : '+msg]})
+        skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
+        sema.release()
+        return
+
+    # organize_result
+    result_df = pd.DataFrame()
+    status, msg, result_df = organize_result(code, name, current_price, buy_price, proper_price, sell_price, roe, roe_reference, fh, fh_quater, fs, industry, product)
+    if status == False:
+        print('[Failed] Idx: ', idx, '\t Code: ', code, '\t Name: ', name, '\t Reason:', 'Error on organize_result ('+msg+')')
+        skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on organize_result : '+msg]})
+        skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
+        sema.release()
+        return
+    #print(result_df)
+    print('[Successful] Code: ', code, '\t Name: ', name)
+    result_df.to_csv(path+file_name+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')    
+    sema.release()
+    return
+
 def get_krx_list():
     krx_df = pd.read_html('http://kind.krx.co.kr/corpgeneral/corpList.do?method=download&searchType=13', header=0)[0]
     krx_df.종목코드 = krx_df.종목코드.map("{:06d}".format)

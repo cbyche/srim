@@ -17,7 +17,7 @@ import utils
 if __name__ == '__main__':
 
     procs = []
-    num_process = 1
+    num_process = 3
     sema = Semaphore(num_process)
 
     exclude_list_endswith = ['스팩', '리츠', '증권', '은행', '홀딩스', '지주', '건설']

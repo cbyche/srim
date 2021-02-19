@@ -68,6 +68,10 @@ $python main.py company_list.txt
 - Total equity for Controlling shareholder
   - Reflection of future growth of 10 years
 
+### v0.23 (2021.02.20)
+
+- Apply multiprocessing 
+
 ### v0.22 (2021.02.11)
 
 - Add reporting values

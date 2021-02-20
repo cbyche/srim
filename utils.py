@@ -10,41 +10,55 @@ import pathlib
 import timeit
 import time
 
-def run(sema, path, file_name, extension, exclude_list_endswith, exclude_list_exact, exclude_list_contain, required_ror_percent, idx, name, code, industry, product):
+def run(sema, path, file_name, extension, exclude_list_endswith, exclude_list_exact, exclude_list_contain, required_ror_percent, idx, row):
     
     proc = os.getpid()
     # print(proc)
 
+    name = row['name']
+    code = row['code']
+    industry = row['industry']
+    product = row['product']
+
     # check_skip_this_company
     if check_skip_this_company(name, exclude_list_endswith, exclude_list_exact, exclude_list_contain):
-        print('[Failed] Idx: ', idx, '\t Code: ', code, '\t Name: ', name, '\t Reason:', '분석 제외 대상')
+        print('    [Failed] Idx: ', '{:4d}'.format(idx), '\t Code: ', '{:6}'.format(code), '\t Name: ', '{:10}'.format(name), '\t Reason:', '분석 제외 대상')
         skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['분석 제외 대상']})
         skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
         sema.release()
         return
 
-    # get_html_fnguide
-    status, msg, html_snapshot, html_fs = get_html_fnguide(code)
+    # get_parse_fnguide
+    status, msg, current_price, shares, fh, fh_quater, fs = get_parse_fnguide(code)
     if status == False:
-        print('[Failed] Idx: ', idx, '\t Code: ', code, '\t Name: ', name, '\t Reason:', 'Error on get_html_fnguide ('+msg+')')
-        skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on get_html_fnguide : '+msg]})
-        skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
-        sema.release()
-        return
-
-    # parse_fnguide
-    status, msg, current_price, shares, fh, fh_quater, fs = parse_fnguide(html_snapshot, html_fs)
-    if status == False:
-        print('[Failed] Idx: ', idx, '\t Code: ', code, '\t Name: ', name, '\t Reason:', 'Error on parse_fnguide ('+msg+')')
+        print('    [Failed] Idx: ', '{:4d}'.format(idx), '\t Code: ', '{:6}'.format(code), '\t Name: ', '{:10}'.format(name), '\t Reason:', 'Error on get_parse_fnguide ('+msg+')')
         skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on parse_fnguide : '+msg]})
         skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
         sema.release()
         return
+    
+    # # get_html_fnguide
+    # status, msg, html_snapshot, html_fs = get_html_fnguide(code)
+    # if status == False:
+    #     print('    [Failed] Idx: ', '{:4d}'.format(idx), '\t Code: ', '{:6}'.format(code), '\t Name: ', '{:10}'.format(name), '\t Reason:', 'Error on get_html_fnguide ('+msg+')')
+    #     skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on get_html_fnguide : '+msg]})
+    #     skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
+    #     sema.release()
+    #     return
+
+    # # parse_fnguide
+    # status, msg, current_price, shares, fh, fh_quater, fs = parse_fnguide(html_snapshot, html_fs)
+    # if status == False:
+    #     print('    [Failed] Idx: ', '{:4d}'.format(idx), '\t Code: ', '{:6}'.format(code), '\t Name: ', '{:10}'.format(name), '\t Reason:', 'Error on parse_fnguide ('+msg+')')
+    #     skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on parse_fnguide : '+msg]})
+    #     skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
+    #     sema.release()
+    #     return
 
     # calculate_srim
     status, msg, buy_price, proper_price, sell_price, roe, roe_reference = calculate_srim(shares, required_ror_percent, fh)
     if status == False:
-        print('[Failed] Idx: ', idx, '\t Code: ', code, '\t Name: ', name, '\t Reason:', 'Error on calculate_srim ('+msg+')')
+        print('    [Failed] Idx: ', '{:4d}'.format(idx), '\t Code: ', '{:6}'.format(code), '\t Name: ', '{:10}'.format(name), '\t Reason:', 'Error on calculate_srim ('+msg+')')
         skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on calculate_srim : '+msg]})
         skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
         sema.release()
@@ -54,13 +68,13 @@ def run(sema, path, file_name, extension, exclude_list_endswith, exclude_list_ex
     result_df = pd.DataFrame()
     status, msg, result_df = organize_result(code, name, current_price, buy_price, proper_price, sell_price, roe, roe_reference, fh, fh_quater, fs, industry, product)
     if status == False:
-        print('[Failed] Idx: ', idx, '\t Code: ', code, '\t Name: ', name, '\t Reason:', 'Error on organize_result ('+msg+')')
+        print('    [Failed] Idx: ', '{:4d}'.format(idx), '\t Code: ', '{:6}'.format(code), '\t Name: ', '{:10}'.format(name), '\t Reason:', 'Error on organize_result ('+msg+')')
         skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on organize_result : '+msg]})
         skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
         sema.release()
         return
     #print(result_df)
-    print('[Successful] Code: ', code, '\t Name: ', name)
+    print('[Successful] Idx: ', '{:4d}'.format(idx), '\t Code: ', '{:6}'.format(code), '\t Name: ', '{:10}'.format(name))
     result_df.to_csv(path+file_name+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')    
     sema.release()
     return
@@ -79,26 +93,17 @@ def get_required_rate_of_return():
     required_ror_bbb_minus_5year = required_ror_bbb_minus.loc['5년']
     return required_ror_bbb_minus_5year
 
-def get_html_fnguide(code):
+def get_parse_fnguide(code):
+    
     url=[]
-
     url.append('http://comp.fnguide.com/SVO2/asp/SVD_Main.asp?pGB=1&gicode=A'+code+'&cID=&MenuYn=Y&ReportGB=D&NewMenuID=101&stkGb=701')
     url.append('http://comp.fnguide.com/SVO2/asp/SVD_Finance.asp?pGB=1&gicode=A'+code+'&cID=&MenuYn=Y&ReportGB=D&NewMenuID=103&stkGb=701')
-        
-    try:
-        html_snapshot = BeautifulSoup(requests.get(url[0]).content, 'html.parser').find('body')
-        html_fs = BeautifulSoup(requests.get(url[1]).content, 'html.parser').find('body')
-        return True, '', html_snapshot, html_fs
-
-    except AttributeError as e :
-        print('Error in get_html_fnguide : ', e)
-        return False, str(e), None, None    
-
-def parse_fnguide(html_snapshot, html_fs):
+    
     try:
         fnguide_df = pd.DataFrame()
 
         #parse html_snapshot
+        html_snapshot = BeautifulSoup(requests.get(url[0]).content, 'html.parser').find('body')
         table = html_snapshot.find_all('table')
         table = pd.read_html(str(table))
         #시세현황 cs : current status
@@ -155,6 +160,7 @@ def parse_fnguide(html_snapshot, html_fs):
         #print(fh_quater)
         
         #Parse html_fs
+        html_fs = BeautifulSoup(requests.get(url[1]).content, 'html.parser').find('body')
         table = html_fs.find_all('table')
         table = pd.read_html(str(table))
         #포괄손익계산서 ci: statement of comprehensive income
@@ -187,8 +193,119 @@ def parse_fnguide(html_snapshot, html_fs):
         #print(fs)
         return True, '', current_price, revised_shares, fh, fh_quater, fs
     except Exception as e:
-        print('Exception in parse_fnguide :', e)
+        print('Exception in get_parse_fnguide :', e)
         return False, str(e), None, None, None, None, None
+
+# def get_html_fnguide(code):
+#     url=[]
+
+#     url.append('http://comp.fnguide.com/SVO2/asp/SVD_Main.asp?pGB=1&gicode=A'+code+'&cID=&MenuYn=Y&ReportGB=D&NewMenuID=101&stkGb=701')
+#     url.append('http://comp.fnguide.com/SVO2/asp/SVD_Finance.asp?pGB=1&gicode=A'+code+'&cID=&MenuYn=Y&ReportGB=D&NewMenuID=103&stkGb=701')
+        
+#     try:
+#         html_snapshot = BeautifulSoup(requests.get(url[0]).content, 'html.parser').find('body')
+#         html_fs = BeautifulSoup(requests.get(url[1]).content, 'html.parser').find('body')
+#         return True, '', html_snapshot, html_fs
+
+#     except AttributeError as e :
+#         print('Error in get_html_fnguide : ', e)
+#         return False, str(e), None, None    
+
+# def parse_fnguide(html_snapshot, html_fs):
+#     try:
+#         fnguide_df = pd.DataFrame()
+
+#         #parse html_snapshot
+#         table = html_snapshot.find_all('table')
+#         table = pd.read_html(str(table))
+#         #시세현황 cs : current status
+#         #current_price: 현재가(종가)
+#         #shares: 발행주식수(보통주+우선주)
+#         cs = table[0]
+#         current_price = float(cs.iloc[0,1].split('/')[0].replace(',',''))
+#         shares = cs.iloc[6,1].replace(',','').split('/')
+#         shares = list(map(float, shares))
+#         shares = shares[0] + shares[1]
+#         #주주구분현황 sh: stake holders
+#         #own_shares: 자기주식
+#         sh = table[4]
+#         own_shares = sh.iloc[4,3]
+#         if math.isnan(own_shares):
+#             own_shares = float(0.0)
+#         else:
+#             own_shares = float(own_shares)
+#         #주식수: 보통주+우선주-자기주식수
+#         revised_shares = shares - own_shares    
+#         #fh: Financial highlight (연결/연간)
+#         fh = table[11]
+#         fh.columns = fh.columns.droplevel()
+#         if ('IFRS(연결)' in fh):
+#             accounting = 'IFRS(연결)'
+#         elif ('GAAP(연결)' in fh):
+#             accounting = 'GAAP(연결)'
+#         else:
+#             return False, 'Neither IFRS(연결) nor GAAP(연결)', None, None, None, None, None
+#         fh.index = fh[accounting].values
+#         fh.drop([accounting], inplace=True, axis=1)
+#         #print(fh)
+#         fh = fh.loc[['지배주주지분', 'ROE', 'EPS(원)', 'DPS(원)', 'BPS(원)', '배당수익률'],:]
+#         fh.rename(index = {'DPS(원)': 'DPS', 'BPS(원)': 'BPS', 'EPS(원)': 'EPS'}, inplace = True)
+#         fh.loc['DPS'] = fh.loc['DPS'].fillna(0)
+#         temp_df = pd.DataFrame({'배당성향(%)': fh.loc['DPS'].astype(float) / fh.loc['EPS'].astype(float) * 100}).T
+#         fh = pd.concat([fh, temp_df])
+#         #print(fh)
+        
+#         #fh_quater: Financial highlight (연결/분기)
+#         fh_quater = table[12]
+#         fh_quater.columns = fh_quater.columns.droplevel()
+#         if ('IFRS(연결)' in fh_quater):
+#             accounting = 'IFRS(연결)'
+#         elif ('GAAP(연결)' in fh_quater):
+#             accounting = 'GAAP(연결)'
+#         else:
+#             return False, 'Neither IFRS(연결) nor GAAP(연결)', None, None, None, None, None
+#         fh_quater.index = fh_quater[accounting].values
+#         fh_quater.drop([accounting], inplace=True, axis=1)
+#         #print(fh_quater)
+#         fh_quater = fh_quater.loc[['지배주주순이익','영업이익'],:].fillna(0)
+#         fh_quater = fh_quater.loc[:,[False, True, True, True, True, False, False, False]]
+#         #print(fh_quater)
+        
+#         #Parse html_fs
+#         table = html_fs.find_all('table')
+#         table = pd.read_html(str(table))
+#         #포괄손익계산서 ci: statement of comprehensive income
+#         ci = table[0]
+#         ci.iloc[:,0] = ci.iloc[:,0].str.replace('계산에 참여한 계정 펼치기', '')
+#         if ('IFRS(연결)' in ci):
+#             accounting = 'IFRS(연결)'
+#         elif ('GAAP(연결)' in ci):
+#             accounting = 'GAAP(연결)'            
+#         else:
+#             return False, 'Niether IFRS(연결) or GAAP(연결)', None, None, None, None, None
+#         ci.index = ci[accounting].values
+#         ci.drop([accounting, '전년동기', '전년동기(%)'], inplace=True, axis=1)
+#         #현금흐름표 cf: statement of cash flow
+#         cf = table[4]
+#         cf.iloc[:,0] = cf.iloc[:,0].str.replace('계산에 참여한 계정 펼치기', '')
+#         cf.index = cf[accounting].values
+#         cf.drop([accounting], inplace=True, axis=1)
+#         #포괄손익계산서 + 현금흐름표
+#         fs = pd.concat([ci, cf])
+#         fs = fs.loc[['영업이익', '영업활동으로인한현금흐름'], :]
+#         fs.rename(index = {'영업활동으로인한현금흐름': '영업CF'}, inplace = True)
+#         temp_df = pd.DataFrame({'CF이익비율': fs.loc['영업CF'] / fs.loc['영업이익']}).T
+#         fs = pd.concat([fs, temp_df])
+#         #영업이익(+), 영업현금흐름(-) 체크 : 해당하면 1
+#         temp1 = fs.loc['영업이익'] > 0
+#         temp2 = fs.loc['영업CF'] < 0
+#         temp_df = pd.DataFrame(temp1 & temp2, columns=['CF이익검토']).T
+#         fs = pd.concat([fs, temp_df])
+#         #print(fs)
+#         return True, '', current_price, revised_shares, fh, fh_quater, fs
+#     except Exception as e:
+#         print('Exception in parse_fnguide :', e)
+#         return False, str(e), None, None, None, None, None
 
 def calculate_price(B0, roe, Ke, shares, discount_factor):
     values = B0 + B0*(roe-Ke)*0.01*(discount_factor)/(1+Ke*0.01-discount_factor)

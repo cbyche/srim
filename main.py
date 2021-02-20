@@ -17,7 +17,7 @@ import utils
 if __name__ == '__main__':
 
     procs = []
-    num_process = 3
+    num_process = 4
     sema = Semaphore(num_process)
 
     exclude_list_endswith = ['스팩', '리츠', '증권', '은행', '홀딩스', '지주', '건설']
@@ -55,12 +55,7 @@ if __name__ == '__main__':
 
     for idx, row in krx_list.iterrows():
         sema.acquire()
-        name = row['name']
-        code = row['code']
-        industry = row['industry']
-        product = row['product']
-
-        proc=Process(target=utils.run, args=(sema, path, file_name, extension, exclude_list_endswith, exclude_list_exact, exclude_list_contain, required_ror_percent, idx, name, code, industry, product,))
+        proc=Process(target=utils.run, args=(sema, path, file_name, extension, exclude_list_endswith, exclude_list_exact, exclude_list_contain, required_ror_percent, idx, row,))
         procs.append(proc)
         proc.start()
 

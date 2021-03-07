@@ -21,7 +21,7 @@ def run(sema, path, file_name, extension, exclude_list_endswith, exclude_list_ex
     product = row['product']
 
     # check_skip_this_company
-    if check_skip_this_company(name, exclude_list_endswith, exclude_list_exact, exclude_list_contain):
+    if check_skip_this_company(name, code, exclude_list_endswith, exclude_list_exact, exclude_list_contain):
         print('    [Failed] Idx: ', '{:4d}'.format(idx), '\t Code: ', '{:6}'.format(code), '\t Name: ', '{:10}'.format(name), '\t Reason:', '분석 제외 대상')
         skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['분석 제외 대상']})
         skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
@@ -196,117 +196,6 @@ def get_parse_fnguide(code):
         print('Exception in get_parse_fnguide :', e)
         return False, str(e), None, None, None, None, None
 
-# def get_html_fnguide(code):
-#     url=[]
-
-#     url.append('http://comp.fnguide.com/SVO2/asp/SVD_Main.asp?pGB=1&gicode=A'+code+'&cID=&MenuYn=Y&ReportGB=D&NewMenuID=101&stkGb=701')
-#     url.append('http://comp.fnguide.com/SVO2/asp/SVD_Finance.asp?pGB=1&gicode=A'+code+'&cID=&MenuYn=Y&ReportGB=D&NewMenuID=103&stkGb=701')
-        
-#     try:
-#         html_snapshot = BeautifulSoup(requests.get(url[0]).content, 'html.parser').find('body')
-#         html_fs = BeautifulSoup(requests.get(url[1]).content, 'html.parser').find('body')
-#         return True, '', html_snapshot, html_fs
-
-#     except AttributeError as e :
-#         print('Error in get_html_fnguide : ', e)
-#         return False, str(e), None, None    
-
-# def parse_fnguide(html_snapshot, html_fs):
-#     try:
-#         fnguide_df = pd.DataFrame()
-
-#         #parse html_snapshot
-#         table = html_snapshot.find_all('table')
-#         table = pd.read_html(str(table))
-#         #시세현황 cs : current status
-#         #current_price: 현재가(종가)
-#         #shares: 발행주식수(보통주+우선주)
-#         cs = table[0]
-#         current_price = float(cs.iloc[0,1].split('/')[0].replace(',',''))
-#         shares = cs.iloc[6,1].replace(',','').split('/')
-#         shares = list(map(float, shares))
-#         shares = shares[0] + shares[1]
-#         #주주구분현황 sh: stake holders
-#         #own_shares: 자기주식
-#         sh = table[4]
-#         own_shares = sh.iloc[4,3]
-#         if math.isnan(own_shares):
-#             own_shares = float(0.0)
-#         else:
-#             own_shares = float(own_shares)
-#         #주식수: 보통주+우선주-자기주식수
-#         revised_shares = shares - own_shares    
-#         #fh: Financial highlight (연결/연간)
-#         fh = table[11]
-#         fh.columns = fh.columns.droplevel()
-#         if ('IFRS(연결)' in fh):
-#             accounting = 'IFRS(연결)'
-#         elif ('GAAP(연결)' in fh):
-#             accounting = 'GAAP(연결)'
-#         else:
-#             return False, 'Neither IFRS(연결) nor GAAP(연결)', None, None, None, None, None
-#         fh.index = fh[accounting].values
-#         fh.drop([accounting], inplace=True, axis=1)
-#         #print(fh)
-#         fh = fh.loc[['지배주주지분', 'ROE', 'EPS(원)', 'DPS(원)', 'BPS(원)', '배당수익률'],:]
-#         fh.rename(index = {'DPS(원)': 'DPS', 'BPS(원)': 'BPS', 'EPS(원)': 'EPS'}, inplace = True)
-#         fh.loc['DPS'] = fh.loc['DPS'].fillna(0)
-#         temp_df = pd.DataFrame({'배당성향(%)': fh.loc['DPS'].astype(float) / fh.loc['EPS'].astype(float) * 100}).T
-#         fh = pd.concat([fh, temp_df])
-#         #print(fh)
-        
-#         #fh_quater: Financial highlight (연결/분기)
-#         fh_quater = table[12]
-#         fh_quater.columns = fh_quater.columns.droplevel()
-#         if ('IFRS(연결)' in fh_quater):
-#             accounting = 'IFRS(연결)'
-#         elif ('GAAP(연결)' in fh_quater):
-#             accounting = 'GAAP(연결)'
-#         else:
-#             return False, 'Neither IFRS(연결) nor GAAP(연결)', None, None, None, None, None
-#         fh_quater.index = fh_quater[accounting].values
-#         fh_quater.drop([accounting], inplace=True, axis=1)
-#         #print(fh_quater)
-#         fh_quater = fh_quater.loc[['지배주주순이익','영업이익'],:].fillna(0)
-#         fh_quater = fh_quater.loc[:,[False, True, True, True, True, False, False, False]]
-#         #print(fh_quater)
-        
-#         #Parse html_fs
-#         table = html_fs.find_all('table')
-#         table = pd.read_html(str(table))
-#         #포괄손익계산서 ci: statement of comprehensive income
-#         ci = table[0]
-#         ci.iloc[:,0] = ci.iloc[:,0].str.replace('계산에 참여한 계정 펼치기', '')
-#         if ('IFRS(연결)' in ci):
-#             accounting = 'IFRS(연결)'
-#         elif ('GAAP(연결)' in ci):
-#             accounting = 'GAAP(연결)'            
-#         else:
-#             return False, 'Niether IFRS(연결) or GAAP(연결)', None, None, None, None, None
-#         ci.index = ci[accounting].values
-#         ci.drop([accounting, '전년동기', '전년동기(%)'], inplace=True, axis=1)
-#         #현금흐름표 cf: statement of cash flow
-#         cf = table[4]
-#         cf.iloc[:,0] = cf.iloc[:,0].str.replace('계산에 참여한 계정 펼치기', '')
-#         cf.index = cf[accounting].values
-#         cf.drop([accounting], inplace=True, axis=1)
-#         #포괄손익계산서 + 현금흐름표
-#         fs = pd.concat([ci, cf])
-#         fs = fs.loc[['영업이익', '영업활동으로인한현금흐름'], :]
-#         fs.rename(index = {'영업활동으로인한현금흐름': '영업CF'}, inplace = True)
-#         temp_df = pd.DataFrame({'CF이익비율': fs.loc['영업CF'] / fs.loc['영업이익']}).T
-#         fs = pd.concat([fs, temp_df])
-#         #영업이익(+), 영업현금흐름(-) 체크 : 해당하면 1
-#         temp1 = fs.loc['영업이익'] > 0
-#         temp2 = fs.loc['영업CF'] < 0
-#         temp_df = pd.DataFrame(temp1 & temp2, columns=['CF이익검토']).T
-#         fs = pd.concat([fs, temp_df])
-#         #print(fs)
-#         return True, '', current_price, revised_shares, fh, fh_quater, fs
-#     except Exception as e:
-#         print('Exception in parse_fnguide :', e)
-#         return False, str(e), None, None, None, None, None
-
 def calculate_price(B0, roe, Ke, shares, discount_factor):
     values = B0 + B0*(roe-Ke)*0.01*(discount_factor)/(1+Ke*0.01-discount_factor)
     price = values / shares
@@ -383,12 +272,14 @@ def match_tick_size(price):
         tick_price = round(price,-1)
     return tick_price
 
-def check_skip_this_company(name, matches_endswith, matches_exact, matches_contain):
+def check_skip_this_company(name, code, matches_endswith, matches_exact, matches_contain):
     if any(name.endswith(x) for x in matches_endswith):
         return 1
     elif any(x in name for x in matches_contain):
         return 1
     elif name in matches_exact:
+        return 1
+    elif code[0] == '9':
         return 1
     else :
         return 0

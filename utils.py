@@ -401,18 +401,18 @@ def organize_result(code, name, current_price, buy_price, proper_price, sell_pri
         '매수가격':[round(buy_price)],
         '적정가격':[round(proper_price)],
         '매도가격':[round(sell_price)], 
-        '매수수익률(%)':[round((buy_price - current_price)/current_price * 100, 2)],
-        '적정수익률(%)':[round((proper_price - current_price)/current_price * 100, 2)], 
-        '매도수익률(%)':[round((sell_price - current_price)/current_price * 100, 2)], 
+        '매수가격수익률(%)':[round((buy_price - current_price)/current_price * 100, 2)],
+        '적정가격수익률(%)':[round((proper_price - current_price)/current_price * 100, 2)],
+        '매도가격수익률(%)':[round((sell_price - current_price)/current_price * 100, 2)],
         'ROE(%)':[round(roe,2)], 
         'ROE기준':[roe_reference],
         '배당수익률(%)':[fh.loc['배당수익률'][-4]], #지난 결산 년도 배당수익률
         '배당성향(%)': [round(fh.loc['배당성향(%)'][-4], 2)], #지난 결산 년도 배당 성향
-        'CF위험(회)':[int(pd.DataFrame(fs.loc['CF이익검토']).sum())],
-        'CF이익비율-3':[round(fs.loc['CF이익비율'][0],2)], #-3 분기
-        'CF이익비율-2':[round(fs.loc['CF이익비율'][1],2)], #-2 분기
-        'CF이익비율-1':[round(fs.loc['CF이익비율'][2],2)], #-1 분기
-        'CF이익비율0':[round(fs.loc['CF이익비율'][3],2)],  #이번 분기       
+        '현금흐름위험(회)':[int(pd.DataFrame(fs.loc['CF이익검토']).sum())],
+        '영업이익대비현금흐름비율(4분기전)':[round(fs.loc['CF이익비율'][0],2)], # 현금흐름/영업이익 4분기전
+        '영업이익대비현금흐름비율(3분기전)':[round(fs.loc['CF이익비율'][1],2)], # 현금흐름/영업이익 3분기전
+        '영업이익대비현금흐름비율(2분기전)':[round(fs.loc['CF이익비율'][2],2)], # 현금흐름/영업이익 2분기전
+        '영업이익대비현금흐름비율(직전분기)':[round(fs.loc['CF이익비율'][3],2)],  # 현금흐름/영업이익 직전분기
         '순이익적자(누적)':[int(fh_quater.loc['지배주주순이익'].sum())], #지배주주순이익 최근 4분기 누적
         '순이익적자(회)':[pd.DataFrame(fh_quater.loc['지배주주순이익'] < 0).sum()['지배주주순이익']], #지배주주순이익 최근 4분기 횟수
         '영업이익적자(누적)':[int(fh_quater.loc['영업이익'].sum())], #최근 4분기 누적

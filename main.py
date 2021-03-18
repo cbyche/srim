@@ -24,11 +24,11 @@ if __name__ == '__main__':
     exclude_list_exact = ['한국테크놀로지그룹', '인터파크', '아세아', 'CJ', 'LG', '경동인베스트', '엘브이엠씨', '대웅', '아모레퍼시픽그룹', '지투알', 'BGF', '코오롱', 'GS', 'SK', '한화', '현대모비스', 'DL', 'HDC', '효성', '동원개발', ]; #holdings
     exclude_list_contain = ['스팩']
 
-    path = str(pathlib.Path().absolute()) + '\\'
-    file_name = str(datetime.now().date())
-    extension = '.csv'
-
     required_ror_percent = utils.get_required_rate_of_return()
+
+    path = str(pathlib.Path().absolute()) + '\\'
+    file_name = str(datetime.now().date()) + '_ROE' + str(required_ror_percent)
+    extension = '.csv'
 
     krx_list = utils.get_krx_list()
     #print(krx_list)
@@ -42,7 +42,7 @@ if __name__ == '__main__':
                 print('[Failed] Please check the company name :', item)
             new_krx_list = pd.concat([new_krx_list, temp])
         krx_list = new_krx_list
-        file_name = file_name+'_from_list'
+        file_name = file_name+ '_ROE' + str(required_ror_percent) + '_from_list'
 
     result_column_names = ['code', 'name', '현재가', '매수가격', '적정가격', '매도가격', '매수수익률(%)', '적정수익률(%)', '매도수익률(%)', 'ROE(%)', 'ROE기준', '배당수익률(%)', '배당성향(%)', 'CF위험(회)', 'CF이익비율-3', 'CF이익비율-2', 'CF이익비율-1', 'CF이익비율0', '순이익적자(누적)', '순이익적자(회)', '영업이익적자(누적)', '영업이익적자(회)', '업종', '주요제품']
     skip_column_names = ['code', 'name', 'reason']

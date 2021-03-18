@@ -9,16 +9,15 @@ import pathlib
 import timeit
 import time
 import sys
-from multiprocessing import Process
-from multiprocessing import Semaphore
+import multiprocessing
 
 import utils
 
 if __name__ == '__main__':
 
     procs = []
-    num_process = 4
-    sema = Semaphore(num_process)
+    num_process = multiprocessing.cpu_count() - 1;
+    sema = multiprocessing.Semaphore(num_process)
 
     exclude_list_endswith = ['스팩', '리츠', '증권', '은행', '홀딩스', '지주', '건설', '화재', '종금', '캐피탈', '투자']
     exclude_list_exact = ['한국테크놀로지그룹', '인터파크', '아세아', 'CJ', 'LG', '경동인베스트', '엘브이엠씨', '대웅', '아모레퍼시픽그룹', '지투알', 'BGF', '코오롱', 'GS', 'SK', '한화', '현대모비스', 'DL', 'HDC', '효성', '동원개발', ]; #holdings
@@ -42,7 +41,7 @@ if __name__ == '__main__':
                 print('[Failed] Please check the company name :', item)
             new_krx_list = pd.concat([new_krx_list, temp])
         krx_list = new_krx_list
-        file_name = file_name+ '_ROE' + str(required_ror_percent) + '_from_list'
+        file_name = file_name + '_from_list'
 
     result_column_names = ['code', 'name', '현재가', '매수가격', '적정가격', '매도가격', '매수수익률(%)', '적정수익률(%)', '매도수익률(%)', 'ROE(%)', 'ROE기준', '배당수익률(%)', '배당성향(%)', 'CF위험(회)', 'CF이익비율-3', 'CF이익비율-2', 'CF이익비율-1', 'CF이익비율0', '순이익적자(누적)', '순이익적자(회)', '영업이익적자(누적)', '영업이익적자(회)', '업종', '주요제품']
     skip_column_names = ['code', 'name', 'reason']
@@ -55,7 +54,7 @@ if __name__ == '__main__':
 
     for idx, row in krx_list.iterrows():
         sema.acquire()
-        proc=Process(target=utils.run, args=(sema, path, file_name, extension, exclude_list_endswith, exclude_list_exact, exclude_list_contain, required_ror_percent, idx, row,))
+        proc=multiprocessing.Process(target=utils.run, args=(sema, path, file_name, extension, exclude_list_endswith, exclude_list_exact, exclude_list_contain, required_ror_percent, idx, row,))
         procs.append(proc)
         proc.start()
 

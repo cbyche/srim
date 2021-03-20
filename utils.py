@@ -37,24 +37,6 @@ def run(sema, path, file_name, extension, exclude_list_endswith, exclude_list_ex
         sema.release()
         return
     
-    # # get_html_fnguide
-    # status, msg, html_snapshot, html_fs = get_html_fnguide(code)
-    # if status == False:
-    #     print('    [Failed] Idx: ', '{:4d}'.format(idx), '\t Code: ', '{:6}'.format(code), '\t Name: ', '{:10}'.format(name), '\t Reason:', 'Error on get_html_fnguide ('+msg+')')
-    #     skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on get_html_fnguide : '+msg]})
-    #     skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
-    #     sema.release()
-    #     return
-
-    # # parse_fnguide
-    # status, msg, current_price, shares, fh, fh_quater, fs = parse_fnguide(html_snapshot, html_fs)
-    # if status == False:
-    #     print('    [Failed] Idx: ', '{:4d}'.format(idx), '\t Code: ', '{:6}'.format(code), '\t Name: ', '{:10}'.format(name), '\t Reason:', 'Error on parse_fnguide ('+msg+')')
-    #     skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on parse_fnguide : '+msg]})
-    #     skip_df.to_csv(path+file_name+'_skipped'+extension, mode='a', header=False, index=False, na_rep='NaN', encoding='utf-8-sig')
-    #     sema.release()
-    #     return
-
     # calculate_srim
     status, msg, buy_price, proper_price, sell_price, roe, roe_reference = calculate_srim(shares, required_ror_percent, fh)
     if status == False:
@@ -296,22 +278,21 @@ def organize_result(code, name, current_price, buy_price, proper_price, sell_pri
         '적정가격수익률(%)':[round((proper_price - current_price)/current_price * 100, 2)],
         '매도가격수익률(%)':[round((sell_price - current_price)/current_price * 100, 2)],
         'ROE(%)':[round(roe,2)], 
-        'ROE기준':[roe_reference],
+        'ROE기준년도':[roe_reference],
         '배당수익률(%)':[fh.loc['배당수익률'][-4]], #지난 결산 년도 배당수익률
         '배당성향(%)': [round(fh.loc['배당성향(%)'][-4], 2)], #지난 결산 년도 배당 성향
-        '현금흐름위험(회)':[int(pd.DataFrame(fs.loc['CF이익검토']).sum())],
-        '영업이익대비현금흐름비율(4분기전)':[round(fs.loc['CF이익비율'][0],2)], # 현금흐름/영업이익 4분기전
-        '영업이익대비현금흐름비율(3분기전)':[round(fs.loc['CF이익비율'][1],2)], # 현금흐름/영업이익 3분기전
-        '영업이익대비현금흐름비율(2분기전)':[round(fs.loc['CF이익비율'][2],2)], # 현금흐름/영업이익 2분기전
-        '영업이익대비현금흐름비율(직전분기)':[round(fs.loc['CF이익비율'][3],2)],  # 현금흐름/영업이익 직전분기
-        '순이익적자(누적)':[int(fh_quater.loc['지배주주순이익'].sum())], #지배주주순이익 최근 4분기 누적
-        '순이익적자(회)':[pd.DataFrame(fh_quater.loc['지배주주순이익'] < 0).sum()['지배주주순이익']], #지배주주순이익 최근 4분기 횟수
-        '영업이익적자(누적)':[int(fh_quater.loc['영업이익'].sum())], #최근 4분기 누적
-        '영업이익적자(회)':[pd.DataFrame(fh_quater.loc['영업이익'] < 0).sum()['영업이익']], #최근 4분기 횟수
+        '현금흐름위험(회)':[int(pd.DataFrame(fs.loc['CF이익검토']).sum())], #현금흐름(-), 영업이익(+)
+        '영업이익/현금흐름(4분기전)':[round(fs.loc['CF이익비율'][0],2)], # 현금흐름/영업이익 4분기전
+        '영업이익/현금흐름(3분기전)':[round(fs.loc['CF이익비율'][1],2)], # 현금흐름/영업이익 3분기전
+        '영업이익/현금흐름(2분기전)':[round(fs.loc['CF이익비율'][2],2)], # 현금흐름/영업이익 2분기전
+        '영업이익/현금흐름(직전분기)':[round(fs.loc['CF이익비율'][3],2)],  # 현금흐름/영업이익 직전분기
+        '순이익(4분기누적)':[int(fh_quater.loc['지배주주순이익'].sum())], #지배주주순이익 최근 4분기 누적
+        '순이익적자(4분기횟수)':[pd.DataFrame(fh_quater.loc['지배주주순이익'] < 0).sum()['지배주주순이익']], #지배주주순이익 최근 4분기 횟수
+        '영업이익(4분기누적)':[int(fh_quater.loc['영업이익'].sum())], #최근 4분기 누적
+        '영업이익적자(4분기횟수)':[pd.DataFrame(fh_quater.loc['영업이익'] < 0).sum()['영업이익']], #최근 4분기 횟수
         '업종':[industry], 
         '주요제품':[product]})
         return True, '', temp_result_df
     except Exception as e:
         print('Exception in calculate_srim :', e)
         return False, str(e), pd.DataFrame()
-        

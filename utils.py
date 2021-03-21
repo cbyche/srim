@@ -175,7 +175,7 @@ def get_parse_fnguide(code):
         #print(fs)
         return True, '', current_price, revised_shares, fh, fh_quater, fs
     except Exception as e:
-        print('Exception in get_parse_fnguide :', e)
+        #print('Exception in get_parse_fnguide :', e)
         return False, str(e), None, None, None, None, None
 
 def calculate_price(B0, roe, Ke, shares, discount_factor):
@@ -223,7 +223,7 @@ def calculate_roe(fh):
             return False, 'not enough ROE history', None, None
         return True, '', selected_roe, roe_reference
     except Exception as e:
-        print('Exception in calculate_roe :', e)
+        #print('Exception in calculate_roe :', e)
         return False, str(e), None, None
 
 def calculate_srim(shares, Ke, fh):
@@ -242,7 +242,7 @@ def calculate_srim(shares, Ke, fh):
         buy_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor))
         return True, '', buy_price, proper_price, sell_price, roe, roe_reference
     except Exception as e:
-        print('Exception in calculate_srim :', e)
+        #print('Exception in calculate_srim :', e)
         return False, str(e), None, None, None, None, None
 
 def match_tick_size(price):
@@ -294,5 +294,5 @@ def organize_result(code, name, current_price, buy_price, proper_price, sell_pri
         '주요제품':[product]})
         return True, '', temp_result_df
     except Exception as e:
-        print('Exception in calculate_srim :', e)
+        #print('Exception in calculate_srim :', e)
         return False, str(e), pd.DataFrame()

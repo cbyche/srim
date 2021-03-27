@@ -102,9 +102,9 @@ def get_parse_fnguide(code):
         sh = table[4]
         own_shares = sh.iloc[4,2]
         if math.isnan(own_shares):
-            own_shares = int(0)
+            own_shares = 0
         else:
-            own_shares = int(own_shares)
+            own_shares = own_shares.astype(int)
         #주식수: 보통주+우선주-자기주식수
         revised_shares = shares - own_shares
         #fh: Financial highlight (연결/연간)
@@ -233,20 +233,20 @@ def calculate_weighted_average(minus2, minus1, minus0):
 
 def calculate_roe_B0(fh):
     roe = fh.loc['ROE',:]
-    B0 = fh.loc['지배주주지분',:] * 10**8
+    B0 = fh.loc['지배주주지분',:]
     pos = 0
     try:
         # +2year(E)
         if not math.isnan(roe[-1]) and not math.isnan(B0[-1]):
-            selected_roe = roe[-1]
+            selected_roe = roe[-1].astype(float)
             roe_reference = roe.index[-1]
-            selected_B0 = B0[-1]
+            selected_B0 = float(B0[-1]) * 10**8
             pos = -1
         # +1year (E)    
         elif not math.isnan(roe[-2]) and not math.isnan(B0[-2]):
-            selected_roe = roe[-2]
+            selected_roe = roe[-2].astype(float)
             roe_reference = roe.index[-2]
-            selected_B0 = B0[-2]
+            selected_B0 = float(B0[-2]) * 10**8
             pos = -2
         # 0year (E) - weighted average
         elif not roe[-5:-2].isnull().values.any() and not math.isnan(B0[-3]):
@@ -254,15 +254,15 @@ def calculate_roe_B0(fh):
             extracted_roe = extracted_roe.astype(float)
             selected_roe = calculate_weighted_average(extracted_roe[0], extracted_roe[1], extracted_roe[2])
             roe_reference = roe.index[-3]
-            selected_B0 = B0[-3]
+            selected_B0 = float(B0[-3]) * 10**8
             pos = -3
         # -1year - weighted average
-        elif not roe[-6:-3].isnull().values.any() and not math.isnan(B0[-4]):
+        elif not roe[-6:-3].isnull().values.any() and not math.isnan(float(B0[-4])):
             extracted_roe = roe[-6:-3]
             extracted_roe = extracted_roe.astype(float)
             selected_roe = calculate_weighted_average(extracted_roe[0], extracted_roe[1], extracted_roe[2])
             roe_reference = roe.index[-4]
-            selected_B0 = B0[-4]
+            selected_B0 = float(B0[-4]) * 10**8
             pos = -4
         else:
             return False, 'not enough ROE history', None, None, None, None
@@ -313,14 +313,14 @@ def organize_result(code, name, current_price, buy_price, proper_price, sell_pri
     try:
         temp_result_df = pd.DataFrame({'code':[code], 
         'name':[name], 
-        '현재가':[round(current_price)], 
+        '현재가':[round(current_price)],
         '매수가격':[round(buy_price)],
         '적정가격':[round(proper_price)],
-        '매도가격':[round(sell_price)], 
+        '매도가격':[round(sell_price)],
         '매수가격수익률(%)':[round((buy_price - current_price)/current_price * 100, 2)],
         '적정가격수익률(%)':[round((proper_price - current_price)/current_price * 100, 2)],
         '매도가격수익률(%)':[round((sell_price - current_price)/current_price * 100, 2)],
-        'ROE(%)':[round(roe,2)], 
+        'ROE(%)':[round(roe,2)],
         'ROE기준년도':[roe_reference],
         '배당수익률(%)':[fh.loc['배당수익률'][-4]], #지난 결산 년도 배당수익률
         '배당성향(%)': [round(fh.loc['배당성향(%)'][-4], 2)], #지난 결산 년도 배당 성향
@@ -329,11 +329,11 @@ def organize_result(code, name, current_price, buy_price, proper_price, sell_pri
         '영업이익/현금흐름(3분기전)':[round(fs.loc['CF이익비율'][1],2)], # 현금흐름/영업이익 3분기전
         '영업이익/현금흐름(2분기전)':[round(fs.loc['CF이익비율'][2],2)], # 현금흐름/영업이익 2분기전
         '영업이익/현금흐름(직전분기)':[round(fs.loc['CF이익비율'][3],2)],  # 현금흐름/영업이익 직전분기
-        '순이익(4분기누적)':[int(fh_quater.loc['지배주주순이익'].sum())], #지배주주순이익 최근 4분기 누적
-        '순이익적자(4분기횟수)':[pd.DataFrame(fh_quater.loc['지배주주순이익'] < 0).sum()['지배주주순이익']], #지배주주순이익 최근 4분기 횟수
-        '영업이익(4분기누적)':[int(fh_quater.loc['영업이익'].sum())], #최근 4분기 누적
-        '영업이익적자(4분기횟수)':[pd.DataFrame(fh_quater.loc['영업이익'] < 0).sum()['영업이익']], #최근 4분기 횟수
-        '업종':[industry], 
+        '순이익(4분기누적)':[fh_quater.loc['지배주주순이익'].astype(float).sum()], #지배주주순이익 최근 4분기 누적
+        '순이익적자(4분기횟수)':[pd.DataFrame(fh_quater.loc['지배주주순이익'].astype(float) < 0).sum()['지배주주순이익']], #지배주주순이익 최근 4분기 횟수
+        '영업이익(4분기누적)':[fh_quater.loc['영업이익'].astype(float).sum()], #최근 4분기 누적
+        '영업이익적자(4분기횟수)':[pd.DataFrame(fh_quater.loc['영업이익'].astype(float) < 0).sum()['영업이익']], #최근 4분기 횟수
+        '업종':[industry],
         '주요제품':[product]})
         return True, '', temp_result_df
     except Exception as e:

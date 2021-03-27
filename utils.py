@@ -106,7 +106,7 @@ def get_parse_fnguide(code):
         else:
             own_shares = int(own_shares)
         #주식수: 보통주+우선주-자기주식수
-        revised_shares = shares - own_shares    
+        revised_shares = shares - own_shares
         #fh: Financial highlight (연결/연간)
         fh = table[11]
         fh.columns = fh.columns.droplevel()
@@ -231,49 +231,52 @@ def calculate_weighted_average(minus2, minus1, minus0):
             weighted_average = minus0 # decrease pattern
     return weighted_average
 
-def calculate_roe(fh):
+def calculate_roe_B0(fh):
     roe = fh.loc['ROE',:]
+    B0 = fh.loc['지배주주지분',:] * 10**8
     pos = 0
     try:
         # +2year(E)
-        if not math.isnan(roe[-1]):   
+        if not math.isnan(roe[-1]) and not math.isnan(B0[-1]):
             selected_roe = roe[-1]
             roe_reference = roe.index[-1]
+            selected_B0 = B0[-1]
             pos = -1
         # +1year (E)    
-        elif not math.isnan(roe[-2]):
+        elif not math.isnan(roe[-2]) and not math.isnan(B0[-2]):
             selected_roe = roe[-2]
             roe_reference = roe.index[-2]
+            selected_B0 = B0[-2]
             pos = -2
         # 0year (E) - weighted average
-        elif not roe[-5:-2].isnull().values.any():
+        elif not roe[-5:-2].isnull().values.any() and not math.isnan(B0[-3]):
             extracted_roe = roe[-5:-2]
             extracted_roe = extracted_roe.astype(float)
             selected_roe = calculate_weighted_average(extracted_roe[0], extracted_roe[1], extracted_roe[2])
             roe_reference = roe.index[-3]
+            selected_B0 = B0[-3]
             pos = -3
         # -1year - weighted average
-        elif not roe[-6:-3].isnull().values.any():   
+        elif not roe[-6:-3].isnull().values.any() and not math.isnan(B0[-4]):
             extracted_roe = roe[-6:-3]
             extracted_roe = extracted_roe.astype(float)
             selected_roe = calculate_weighted_average(extracted_roe[0], extracted_roe[1], extracted_roe[2])
             roe_reference = roe.index[-4]
+            selected_B0 = B0[-4]
             pos = -4
         else:
-            return False, 'not enough ROE history', None, None, None
-        return True, '', selected_roe, roe_reference, pos
+            return False, 'not enough ROE history', None, None, None, None
+        return True, '', selected_roe, roe_reference, selected_B0, pos
     except Exception as e:
-        #print('Exception in calculate_roe :', e)
-        return False, str(e), None, None, None
+        #print('Exception in calculate_roe_B0 :', e)
+        return False, str(e), None, None, None, None
 
 def calculate_srim(shares, Ke, fh):
     try:
         #extract&determine roe
-        status, msg, roe, roe_reference, pos = calculate_roe(fh)
+        status, msg, roe, roe_reference, B0, pos = calculate_roe_B0(fh)
         if status == False:
             return False, msg, None, None, None, None, None
-        #extract&determine B0 : 지배주주지분
-        B0 = fh.loc['지배주주지분'][pos] * 10**8 
         discount_factor = 1
         sell_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor, pos))
         discount_factor = 0.9

@@ -9,6 +9,7 @@ from datetime import datetime
 import pathlib
 import timeit
 import time
+import numpy_financial as npf
 
 def run(sema, path, file_name, extension, exclude_list_endswith, exclude_list_exact, exclude_list_contain, required_ror_percent, idx, row):
     
@@ -92,18 +93,18 @@ def get_parse_fnguide(code):
         #current_price: 현재가(종가)
         #shares: 발행주식수(보통주+우선주)
         cs = table[0]
-        current_price = float(cs.iloc[0,1].split('/')[0].replace(',',''))
+        current_price = int(cs.iloc[0,1].split('/')[0].replace(',',''))
         shares = cs.iloc[6,1].replace(',','').split('/')
-        shares = list(map(float, shares))
+        shares = list(map(int, shares))
         shares = shares[0] + shares[1]
         #주주구분현황 sh: stake holders
         #own_shares: 자기주식
         sh = table[4]
-        own_shares = sh.iloc[4,3]
+        own_shares = sh.iloc[4,2]
         if math.isnan(own_shares):
-            own_shares = float(0.0)
+            own_shares = int(0)
         else:
-            own_shares = float(own_shares)
+            own_shares = int(own_shares)
         #주식수: 보통주+우선주-자기주식수
         revised_shares = shares - own_shares    
         #fh: Financial highlight (연결/연간)
@@ -178,9 +179,43 @@ def get_parse_fnguide(code):
         #print('Exception in get_parse_fnguide :', e)
         return False, str(e), None, None, None, None, None
 
-def calculate_price(B0, roe, Ke, shares, discount_factor):
-    values = B0 + B0*(roe-Ke)*0.01*(discount_factor)/(1+Ke*0.01-discount_factor)
-    price = values / shares
+# # Assumption : Excess earning remains, it means ROE decreased (consider infinite years)
+# def calculate_price(B0, roe, Ke, shares, discount_factor, pos):
+#     roe *= 0.01
+#     Ke *= 0.01
+#     values = B0 + B0*(roe-Ke)*(discount_factor)/(1+Ke-discount_factor)
+#     price = values / shares
+#     return price
+
+def calculate_price(B0, roe, Ke, shares, discount_factor, pos):
+    if pos == -1 :
+        years = 7
+        referenceDate = datetime(datetime.now().year+2,12,31)
+    elif pos == -2 :
+        years = 8
+        referenceDate = datetime(datetime.now().year+1,12,31)
+    elif pos == -3 :
+        years = 9
+        referenceDate = datetime(datetime.now().year,12,31)
+    else :
+        years = 10
+        referenceDate = datetime(datetime.now().year-1,12,31)
+    Ke *= 0.01
+    roe *= 0.01
+    Bt = B0
+    excesses = [0,]
+    excessRate = roe-Ke
+    for i in range(years) :
+        excessRate *= discount_factor
+        roe = Ke + excessRate
+        excess = Bt * roe - Bt * Ke
+        excesses.append(excess)
+        Bt += Bt * roe
+    excessNetPresentValue = npf.npv(Ke,excesses)
+    B = B0 + excessNetPresentValue
+    priceAtThatTime = B/shares
+    dayDifference = (referenceDate - datetime.now()).days
+    price = priceAtThatTime / (1+Ke)**(dayDifference/365)
     return price
 
 def calculate_weighted_average(minus2, minus1, minus0):
@@ -198,48 +233,53 @@ def calculate_weighted_average(minus2, minus1, minus0):
 
 def calculate_roe(fh):
     roe = fh.loc['ROE',:]
+    pos = 0
     try:
         # +2year(E)
         if not math.isnan(roe[-1]):   
             selected_roe = roe[-1]
             roe_reference = roe.index[-1]
+            pos = -1
         # +1year (E)    
         elif not math.isnan(roe[-2]):
             selected_roe = roe[-2]
             roe_reference = roe.index[-2]
+            pos = -2
         # 0year (E) - weighted average
         elif not roe[-5:-2].isnull().values.any():
             extracted_roe = roe[-5:-2]
             extracted_roe = extracted_roe.astype(float)
             selected_roe = calculate_weighted_average(extracted_roe[0], extracted_roe[1], extracted_roe[2])
             roe_reference = roe.index[-3]
+            pos = -3
         # -1year - weighted average
         elif not roe[-6:-3].isnull().values.any():   
             extracted_roe = roe[-6:-3]
             extracted_roe = extracted_roe.astype(float)
             selected_roe = calculate_weighted_average(extracted_roe[0], extracted_roe[1], extracted_roe[2])
             roe_reference = roe.index[-4]
+            pos = -4
         else:
-            return False, 'not enough ROE history', None, None
-        return True, '', selected_roe, roe_reference
+            return False, 'not enough ROE history', None, None, None
+        return True, '', selected_roe, roe_reference, pos
     except Exception as e:
         #print('Exception in calculate_roe :', e)
-        return False, str(e), None, None
+        return False, str(e), None, None, None
 
 def calculate_srim(shares, Ke, fh):
     try:
         #extract&determine roe
-        status, msg, roe, roe_reference = calculate_roe(fh)
+        status, msg, roe, roe_reference, pos = calculate_roe(fh)
         if status == False:
             return False, msg, None, None, None, None, None
         #extract&determine B0 : 지배주주지분
-        B0 = fh.loc['지배주주지분'][-4] * 10**8 # 지난 결산 년도 지배주주지분
+        B0 = fh.loc['지배주주지분'][pos] * 10**8 
         discount_factor = 1
-        sell_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor))
+        sell_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor, pos))
         discount_factor = 0.9
-        proper_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor))
+        proper_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor, pos))
         discount_factor = 0.8
-        buy_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor))
+        buy_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor, pos))
         return True, '', buy_price, proper_price, sell_price, roe, roe_reference
     except Exception as e:
         #print('Exception in calculate_srim :', e)

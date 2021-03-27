@@ -63,7 +63,7 @@ $python main.py company_list.txt
 
 ## History
 
-### v0.3 (Scheduled, but not fixed)
+### v0.3 (2021.03.27)
 
 - Total equity for Controlling shareholder
   - Reflection of future growth of 10 years
@@ -76,13 +76,13 @@ $python main.py company_list.txt
 
 - Add reporting values
   - Controlling interests for last 4 quaters
-  - Operating profits for last 4 quaters 
+  - Operating profits for last 4 quaters
 
 ### v0.21 (2020.11.25)
 
 - Excluded from analysis
   - Companies related with SPAC, REITs, Bank, Finance, Holdings, and Constructions
-    - S-RIM can't adequatly analysis these kinds of industries 
+    - S-RIM can't adequatly analysis these kinds of industries
 
 ### v0.2 (2020.11.17)
 
@@ -98,6 +98,6 @@ $python main.py company_list.txt
   - the latest settlement year
 - Excluded from analysis
   - Companies related with SPAC, REITs, Bank, Finance, and holdings
-    - S-RIM can't adequatly analysis these kinds of industries 
+    - S-RIM can't adequatly analysis these kinds of industries
   - Companies with unformatted financial statement
   - Companies having problems with ROE or total equity (ex. complete encroachment, not provided)

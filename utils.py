@@ -180,7 +180,7 @@ def get_parse_fnguide(code):
         return False, str(e), None, None, None, None, None
 
 # Assumption : Excess earning remains, it means ROE decreased (consider infinite years)
-def calculate_price_book(B0, roe, Ke, shares, discount_factor, pos):
+def calculate_price_book(B0, roe, Ke, shares, discount_factor):
     roe *= 0.01
     Ke *= 0.01
     values = B0 + B0*(roe-Ke)*(discount_factor)/(1+Ke-discount_factor)
@@ -277,15 +277,15 @@ def calculate_srim(shares, Ke, fh):
         #extract&determine roe
         status, msg, roe, roe_reference, B0, pos = calculate_roe_B0(fh)
         if status == False:
-            return False, msg, None, None, None, None, None
+            return False, msg, None, None, None, None, None, None
         discount_factor = 1
-        sell_price_book = match_tick_size(calculate_price_book(B0, roe, Ke, shares, discount_factor, pos))
+        sell_price_book = match_tick_size(calculate_price_book(B0, roe, Ke, shares, discount_factor))
         sell_price_lecture = match_tick_size(calculate_price_lecture(B0, roe, Ke, shares, discount_factor, pos))
         discount_factor = 0.9
-        proper_price_book = match_tick_size(calculate_price_book(B0, roe, Ke, shares, discount_factor, pos))
+        proper_price_book = match_tick_size(calculate_price_book(B0, roe, Ke, shares, discount_factor))
         proper_price_lecture = match_tick_size(calculate_price_lecture(B0, roe, Ke, shares, discount_factor, pos))
         discount_factor = 0.8
-        buy_price_book = match_tick_size(calculate_price_book(B0, roe, Ke, shares, discount_factor, pos))
+        buy_price_book = match_tick_size(calculate_price_book(B0, roe, Ke, shares, discount_factor))
         buy_price_lecture = match_tick_size(calculate_price_lecture(B0, roe, Ke, shares, discount_factor, pos))
 
         buy_price = min(buy_price_book, buy_price_lecture)

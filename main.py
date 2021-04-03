@@ -43,7 +43,7 @@ if __name__ == '__main__':
         krx_list = new_krx_list
         file_name = file_name + '_from_list'
 
-    result_column_names = ['code', 'name', '현재가', '매수가격', '적정가격', '매도가격', '매수수익률(%)', '적정수익률(%)', '매도수익률(%)', 'ROE(%)', 'ROE기준', '배당수익률(%)', '배당성향(%)', 'CF위험(회)', 'CF이익비율-3', 'CF이익비율-2', 'CF이익비율-1', 'CF이익비율0', '순이익적자(누적)', '순이익적자(회)', '영업이익적자(누적)', '영업이익적자(회)', '업종', '주요제품']
+    result_column_names = ['code', 'name', '현재가', '매수가격', '적정가격', '매도가격', '매수가격수익률(%)', '적정가격수익률(%)', '매도가격수익률(%)', 'ROE(%)', 'ROE기준년도', '배당수익률(%)', '배당성향(%)', '현금흐름위험(회)', '영업이익/현금흐름(4분기전)', '영업이익/현금흐름(3분기전)', '영업이익/현금흐름(2분기전)', '영업이익/현금흐름(직전분기)', '순이익(4분기누적)', '순이익적자(4분기횟수)', '영업이익(4분기누적)', '영업이익적자(4분기횟수)', '업종', '주요제품']
     skip_column_names = ['code', 'name', 'reason']
     result_df = pd.DataFrame(columns=result_column_names)
     skip_df = pd.DataFrame(columns=skip_column_names)

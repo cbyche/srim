@@ -39,7 +39,7 @@ def run(sema, path, file_name, extension, exclude_list_endswith, exclude_list_ex
         return
     
     # calculate_srim
-    status, msg, buy_price, proper_price, sell_price, roe, roe_reference = calculate_srim(shares, required_ror_percent, fh)
+    status, msg, buy_price, proper_price, sell_price, last_price, roe, roe_reference = calculate_srim(shares, required_ror_percent, fh)
     if status == False:
         print('    [Failed] Idx: ', '{:4d}'.format(idx), '\t Code: ', '{:6}'.format(code), '\t Name: ', '{:10}'.format(name), '\t Reason:', 'Error on calculate_srim ('+msg+')')
         skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on calculate_srim : '+msg]})
@@ -49,7 +49,7 @@ def run(sema, path, file_name, extension, exclude_list_endswith, exclude_list_ex
 
     # organize_result
     result_df = pd.DataFrame()
-    status, msg, result_df = organize_result(code, name, current_price, buy_price, proper_price, sell_price, roe, roe_reference, fh, fh_quater, fs, industry, product)
+    status, msg, result_df = organize_result(code, name, current_price, buy_price, proper_price, sell_price, last_price, roe, roe_reference, fh, fh_quater, fs, industry, product)
     if status == False:
         print('    [Failed] Idx: ', '{:4d}'.format(idx), '\t Code: ', '{:6}'.format(code), '\t Name: ', '{:10}'.format(name), '\t Reason:', 'Error on organize_result ('+msg+')')
         skip_df = pd.DataFrame({'code':[code], 'name':[name], 'reason':['Error on organize_result : '+msg]})
@@ -179,15 +179,16 @@ def get_parse_fnguide(code):
         #print('Exception in get_parse_fnguide :', e)
         return False, str(e), None, None, None, None, None
 
-# # Assumption : Excess earning remains, it means ROE decreased (consider infinite years)
-# def calculate_price(B0, roe, Ke, shares, discount_factor, pos):
-#     roe *= 0.01
-#     Ke *= 0.01
-#     values = B0 + B0*(roe-Ke)*(discount_factor)/(1+Ke-discount_factor)
-#     price = values / shares
-#     return price
+# Assumption : Excess earning remains, it means ROE decreased (consider infinite years)
+def calculate_price_book(B0, roe, Ke, shares, discount_factor, pos):
+    roe *= 0.01
+    Ke *= 0.01
+    values = B0 + B0*(roe-Ke)*(discount_factor)/(1+Ke-discount_factor)
+    price = values / shares
+    return price
 
-def calculate_price(B0, roe, Ke, shares, discount_factor, pos):
+# Assumption : ROE remains with increased controlling shareholder
+def calculate_price_lecture(B0, roe, Ke, shares, discount_factor, pos):
     if pos == -1 :
         years = 7
         referenceDate = datetime(datetime.now().year+2,12,31)
@@ -278,15 +279,24 @@ def calculate_srim(shares, Ke, fh):
         if status == False:
             return False, msg, None, None, None, None, None
         discount_factor = 1
-        sell_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor, pos))
+        sell_price_book = match_tick_size(calculate_price_book(B0, roe, Ke, shares, discount_factor, pos))
+        sell_price_lecture = match_tick_size(calculate_price_lecture(B0, roe, Ke, shares, discount_factor, pos))
         discount_factor = 0.9
-        proper_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor, pos))
+        proper_price_book = match_tick_size(calculate_price_book(B0, roe, Ke, shares, discount_factor, pos))
+        proper_price_lecture = match_tick_size(calculate_price_lecture(B0, roe, Ke, shares, discount_factor, pos))
         discount_factor = 0.8
-        buy_price = match_tick_size(calculate_price(B0, roe, Ke, shares, discount_factor, pos))
-        return True, '', buy_price, proper_price, sell_price, roe, roe_reference
+        buy_price_book = match_tick_size(calculate_price_book(B0, roe, Ke, shares, discount_factor, pos))
+        buy_price_lecture = match_tick_size(calculate_price_lecture(B0, roe, Ke, shares, discount_factor, pos))
+
+        buy_price = min(buy_price_book, buy_price_lecture)
+        proper_price = min(proper_price_book, proper_price_lecture)
+        sell_price = min(sell_price_book, sell_price_lecture)
+        last_price = max(sell_price_book, sell_price_lecture)
+
+        return True, '', buy_price, proper_price, sell_price, last_price, roe, roe_reference
     except Exception as e:
         #print('Exception in calculate_srim :', e)
-        return False, str(e), None, None, None, None, None
+        return False, str(e), None, None, None, None, None, None
 
 def match_tick_size(price):
     if (price >= 100000):
@@ -309,7 +319,7 @@ def check_skip_this_company(name, code, matches_endswith, matches_exact, matches
     else :
         return 0
       
-def organize_result(code, name, current_price, buy_price, proper_price, sell_price, roe, roe_reference, fh, fh_quater, fs, industry, product):
+def organize_result(code, name, current_price, buy_price, proper_price, sell_price, last_price, roe, roe_reference, fh, fh_quater, fs, industry, product):
     try:
         temp_result_df = pd.DataFrame({'code':[code], 
         'name':[name], 
@@ -317,9 +327,11 @@ def organize_result(code, name, current_price, buy_price, proper_price, sell_pri
         '매수가격':[round(buy_price)],
         '적정가격':[round(proper_price)],
         '매도가격':[round(sell_price)],
+        '최종가격':[round(last_price)],
         '매수가격수익률(%)':[round((buy_price - current_price)/current_price * 100, 2)],
         '적정가격수익률(%)':[round((proper_price - current_price)/current_price * 100, 2)],
         '매도가격수익률(%)':[round((sell_price - current_price)/current_price * 100, 2)],
+        '최종가격수익률(%)':[round((last_price - current_price)/current_price * 100, 2)],
         'ROE(%)':[round(roe,2)],
         'ROE기준년도':[roe_reference],
         '배당수익률(%)':[fh.loc['배당수익률'][-4]], #지난 결산 년도 배당수익률

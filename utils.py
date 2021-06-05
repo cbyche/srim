@@ -337,7 +337,7 @@ def organize_result(code, name, current_price, buy_price, proper_price, sell_pri
         '배당수익률(%)':[fh.loc['배당수익률'][-4]], #지난 결산 년도 배당수익률
         '배당성향(%)': [round(fh.loc['배당성향(%)'][-4], 2)], #지난 결산 년도 배당 성향
         '현금흐름위험(회)':[int(pd.DataFrame(fs.loc['CF이익검토']).sum())], #현금흐름(-), 영업이익(+)
-        '영업이익/현금흐름(4개년도평균)':[round(fs.loc['CF이익비율'].mean(),2)], #현금흐름/영업이익 4개년도 평균
+        '현금흐름/영업이익(4개년도평균)':[round(fs.loc['CF이익비율'].mean(),2)], #현금흐름/영업이익 4개년도 평균
         '순이익(4분기누적)':[fh_quater.loc['지배주주순이익'].astype(float).sum()], #지배주주순이익 최근 4분기 누적
         '순이익적자(4분기횟수)':[pd.DataFrame(fh_quater.loc['지배주주순이익'].astype(float) < 0).sum()['지배주주순이익']], #지배주주순이익 최근 4분기 횟수
         '영업이익(4분기누적)':[fh_quater.loc['영업이익'].astype(float).sum()], #최근 4분기 누적

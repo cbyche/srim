@@ -65,13 +65,13 @@ $python main.py company_list.txt
 
 ### v0.31 (2021.04.03)
 
-- Update price logic
+- Update price in output
   - Assumption in book : excess profit remains & reflects infinite years
   - Assumption in lecture : ROE remains & refelects 10 years
   - buy price = min(sell price in book, sell price in lecture)
-  - proper price = min(proper price in book, proper price in lecture) -> sell 1/3
-  - sell price = min(sell price in book, sell price in lecture) -> sell 1/3
-  - last price = max(sell price in book, sell price in lecture) -> sell 1/3
+  - proper price = min(proper price in book, proper price in lecture) : sell 1/3
+  - sell price = min(sell price in book, sell price in lecture) : sell 1/3
+  - last price = max(sell price in book, sell price in lecture) : sell 1/3
 
 ### v0.3 (2021.03.27)
 

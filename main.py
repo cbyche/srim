@@ -22,8 +22,8 @@ if __name__ == '__main__':
     sema = multiprocessing.Semaphore(num_process)
 
     exclude_list_endswith = ['스팩', '리츠', '증권', '은행', '홀딩스', '지주', '건설', '화재', '종금', '캐피탈', '투자']
-    exclude_list_exact = ['한국테크놀로지그룹', '인터파크', '아세아', 'CJ', 'LG', '경동인베스트', '엘브이엠씨', '대웅', '아모레퍼시픽그룹', '지투알', 'BGF', '코오롱', 'GS', 'SK', '한화', '현대모비스', 'DL', 'HDC', '효성', '동원개발', '금호산업', '휴온스글로벌']; #holdings
-    exclude_list_contain = ['스팩']
+    exclude_list_exact = ['한국테크놀로지그룹', '인터파크', '아세아', 'CJ', 'LG', '경동인베스트', '엘브이엠씨', '대웅', '아모레퍼시픽그룹', '지투알', 'BGF', '코오롱', 'GS', 'SK', '한화', '현대모비스', 'DL', 'HDC', '효성', '동원개발', '금호산업', '휴온스글로벌', '코오롱글로벌','한국토지신탁','현대해상','계룡건설산업','서연']; #holdings
+    exclude_list_contain = ['스팩', '보험']
 
     required_ror_percent = utils.get_required_rate_of_return()
 

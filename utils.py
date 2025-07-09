@@ -64,7 +64,7 @@ def run(sema, path, file_name, extension, exclude_list_endswith, exclude_list_ex
 
 def get_krx_list():
     krx_df = pd.read_html('http://kind.krx.co.kr/corpgeneral/corpList.do?method=download&searchType=13', header=0)[0]
-    krx_df.종목코드 = krx_df.종목코드.map("{:06d}".format)
+    krx_df['종목코드'] = krx_df['종목코드'].astype(str).str.zfill(6)
     krx_df = krx_df[['종목코드', '회사명', '업종', '주요제품']]
     krx_df = krx_df.rename(columns={'종목코드': 'code', '회사명':'name', '업종' : 'industry', '주요제품' : 'product'})
     return krx_df

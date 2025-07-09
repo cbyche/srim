@@ -18,7 +18,8 @@ import utils
 if __name__ == '__main__':
 
     procs = []
-    num_process = min(multiprocessing.cpu_count() - 1, 4);
+    #num_process = 1
+    num_process = min(multiprocessing.cpu_count() - 1, 4)
     sema = multiprocessing.Semaphore(num_process)
 
     exclude_list_endswith = ['스팩', '리츠', '증권', '은행', '홀딩스', '지주', '건설', '화재', '종금', '캐피탈', '투자']
